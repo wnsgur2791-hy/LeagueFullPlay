@@ -1,17 +1,17 @@
 {
- "version": "1.3.0",
- "ref": "41f1cc5be2665bfebdf52f7bc48ab8ec3e8c50ea",
+ "version": "1.3.1",
+ "ref": "99bbb146a7ccb7ba1dfa01f907f864be0f173227",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "[신고·건의] 버튼 추가: 고장 신고(로그·화면 사진 첨부 선택)와 건의를 디스코드로 보내기",
-  "사용법에 고급 설정·신고·건의 설명 추가"
+  "실행 파일 이름을 '컴프야 매크로.bat'으로 바꾸고 맨 위 폴더로 옮김",
+  "배포용 zip(컴프야매크로.zip) 추가"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "b377d5bbd20cc4aff9e91f39c3f24d63e8982b3895ffc335ee369c459f36215b",
+  "app/app.py": "07e23c6e30f3fd1401265883eecbe2e307119af5310626e9a7ff1443e7dcecb8",
   "app/bot.py": "e0f559204384b1b533ee24e318baad5cab194e3a39550e8215442f41dcc1a425",
   "app/config_default.json": "1d1849bf1e007f3f8b95bc1db761908c155a8b16bb9d915078f6f99fe64c0a7f",
-  "app/launcher.py": "fdecfd62d2586eff6669a9a2a5348f168ddd515bd2851290928f7c94d1910410",
+  "app/launcher.py": "97213f4bbc62384278f8f47732c1b7fba5f83586ccb810667648f5f250657746",
   "app/report.py": "e9bc69a5773a4f81d32e4733a006e9c19717efd22972646ae16a4487b59f584b",
   "app/templates/alert_ok.png": "0cf6fb6e78ed0f106d65072a8eeb3ec3bab74eff9009767e38621a0dced2ccb5",
   "app/templates/alert_sim.png": "f41cd9025b892656e10659c53534a7835a536c7e2fa53cfc93fc23f99f73ff4a",
@@ -39,10 +39,10 @@
   "app/templates/round_again.png": "3dc666276f26f58b7860c5187bc7591eaa95bcd51cde65ae861afef8f28cd17b",
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
-  "app/updater.py": "3e460716ce1969e021524450521c6511343712075219572872c3d7e6a87167f5",
-  "app/version.py": "bc369c58deed09eab54306695d0f2ae7178a7f34934a01308d8c4f31a12c25fa",
+  "app/updater.py": "6d9cccbea3ed6edecd9e6e23c1720b1ce213358152e312c6a5380fe7d1b56c8e",
+  "app/version.py": "6b648b9e16fb66532a7faea39c5b072c66deb83adb4ae13120e298109691e43c",
   "app/vision.py": "2a57925974ed32595801c55f2e952adb2c0d06d8855fc4c0eb4d230f566a622d",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
-  "사용법.txt": "e9537559e53e3744232720d9bc207514abb3bc68b394fd0f347a36710fd4947c"
+  "사용법.txt": "9c911ca12d1e04255ab6a99b0b1269c4a0cf1ec83a54749e7d94c046c7ff47eb"
  }
 }
