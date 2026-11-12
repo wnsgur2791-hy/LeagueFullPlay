@@ -1,14 +1,13 @@
 {
- "version": "1.4.1",
- "ref": "2622df644ac05f3a4cab0fa4079ad8cf38457a8e",
+ "version": "1.4.2",
+ "ref": "85db7c268125d1089485c23494b550322366c21d",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "랭챌: 연속 경기 창이 떠오르는 중에 [경기 진행]을 회색으로 보고 멈추던 문제 수정 (파래질 때까지 기다림)",
-  "랭챌: 즉시 갱신 창은 판단이 1초 이상 같을 때만 결제 (스타가 보이면 바로 닫기)"
+  "랭챌 포갱/스갱 선택을 없애고 요일별 갱신만 남김 (예전에 포갱/스갱을 골라 둔 경우 요일별 갱신으로 바뀜)"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "ba99c9a6edba1a3bda19aa3338651882ad0e9dc70c51242f6e6e07e10025d711",
+  "app/app.py": "714ff90117e6d9e7429dbd37ce15c89893af12ebbb1cee94eac1420d98ca88f8",
   "app/bot.py": "0bacb8e8b5a24a6b50c1050604d5852d514ce20af2c37ff49cc8e593eac232d6",
   "app/config_default.json": "5448b951dd86a3fd93e91af18cf4a0e80db7954a2cff5174c3f1e2bb52fba6c3",
   "app/launcher.py": "97213f4bbc62384278f8f47732c1b7fba5f83586ccb810667648f5f250657746",
@@ -44,9 +43,9 @@
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "6d9cccbea3ed6edecd9e6e23c1720b1ce213358152e312c6a5380fe7d1b56c8e",
-  "app/version.py": "7df3aab91953991a173444807944be0ca8a69952d82e2fef5ab090c3153e0d83",
+  "app/version.py": "7ab1041b96808bf8f6d88e84ec6fd3de4393a44a4d775c21926340dead69791e",
   "app/vision.py": "dac91b9bc113379b0a21d02c53f1d15d746286e0305f23356e017db7c0df2153",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
-  "사용법.txt": "b4ed6f5187e4b7948449e2e3ed27f034f08ff44fd111ced761ae22ca9cb0e576"
+  "사용법.txt": "a9b97ebb41e52383b63495b2f0f66fa39a805f4c3201749a22450c532ceaa904"
  }
 }
