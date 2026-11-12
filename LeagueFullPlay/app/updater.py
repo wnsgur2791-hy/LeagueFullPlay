@@ -73,16 +73,30 @@ def enabled():
     return cfg.get("auto_update", True) is not False
 
 
-def http_get(url, timeout=8):
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
+def http_get(url, timeout=8, accept=None):
+    headers = {"User-Agent": UA}
+    if accept:
+        headers["Accept"] = accept
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read()
 
 
+def _fetch_latest_json(repo, timeout):
+    """latest.json 읽기.
+    1순위 GitHub API: 거의 바로 최신 내용이 보임 (raw 주소는 GitHub가 최대 5분 동안 예전 내용을 줌)
+    2순위 raw 주소: API가 막혔을 때 (시간당 횟수 제한 등)"""
+    try:
+        url = f"https://api.github.com/repos/{repo}/contents/latest.json?ref=main"
+        return json.loads(http_get(url, timeout, accept="application/vnd.github.raw+json").decode("utf-8"))
+    except Exception:
+        url = f"https://raw.githubusercontent.com/{repo}/main/latest.json?t={int(time.time())}"
+        return json.loads(http_get(url, timeout).decode("utf-8"))
+
+
 def latest_release(repo, prog_dir, timeout=6):
     """저장소 main 의 latest.json -> {'version', 'notes', 'ref', 'files': {경로: sha256}}"""
-    url = f"https://raw.githubusercontent.com/{repo}/main/latest.json?t={int(time.time())}"
-    data = json.loads(http_get(url, timeout).decode("utf-8"))
+    data = _fetch_latest_json(repo, timeout)
     notes = data.get("notes") or ""
     if isinstance(notes, list):
         notes = "\n".join(f"- {n}" for n in notes)
