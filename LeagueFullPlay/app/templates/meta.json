@@ -1,0 +1,178 @@
+{
+ "catcher_lead": {
+  "box": [
+   607,
+   1058,
+   677,
+   1112
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "coach_title": {
+  "box": [
+   304,
+   141,
+   449,
+   176
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "coach_replace": {
+  "box": [
+   582,
+   286,
+   747,
+   338
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "pitch_off": {
+  "box": [
+   711,
+   69,
+   762,
+   114
+  ],
+  "margin": 25,
+  "threshold": 0.7
+ },
+ "pitch_on": {
+  "box": [
+   711,
+   69,
+   762,
+   114
+  ],
+  "margin": 25,
+  "threshold": 0.7
+ },
+ "outs": {
+  "box": [
+   412,
+   71,
+   464,
+   96
+  ],
+  "margin": 25,
+  "threshold": 0.75
+ },
+ "pause_btn": {
+  "box": [
+   712,
+   8,
+   760,
+   56
+  ],
+  "margin": 25,
+  "threshold": 0.7
+ },
+ "menu_sim": {
+  "box": [
+   104,
+   926,
+   394,
+   981
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "menu_continue": {
+  "box": [
+   454,
+   1126,
+   629,
+   1171
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "alert_sim": {
+  "box": [
+   204,
+   648,
+   564,
+   673
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "alert_ok": {
+  "box": [
+   400,
+   822,
+   616,
+   890
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "result_title": {
+  "box": [
+   339,
+   628,
+   429,
+   656
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "result_next": {
+  "box": [
+   436,
+   1240,
+   700,
+   1306
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "mvp_title": {
+  "box": [
+   296,
+   738,
+   469,
+   774
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "mvp_next": {
+  "box": [
+   200,
+   1240,
+   568,
+   1306
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "round_again": {
+  "box": [
+   149,
+   1238,
+   294,
+   1276
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "gauge_zero": {
+  "box": [
+   50,
+   124,
+   100,
+   156
+  ],
+  "margin": 25,
+  "threshold": 0.7
+ },
+ "_gauge_135_check_box": [
+  420,
+  126,
+  462,
+  156
+ ]
+}

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+LeagueFullPlay/config.json
+LeagueFullPlay/logs/
+LeagueFullPlay/captures/
+LeagueFullPlay/업데이트백업/
+LeagueFullPlay/.installed

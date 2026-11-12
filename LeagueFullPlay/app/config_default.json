@@ -1,0 +1,19 @@
+{
+  "adb_path": "",
+  "serial": "",
+  "max_games": 0,
+  "loop_interval_sec": 0.35,
+  "neutral_tap_interval_sec": 0.7,
+  "neutral_tap_point": [
+    46,
+    818
+  ],
+  "pause_neutral_tap_during_sim_switch": true,
+  "action_cooldown_sec": 1.5,
+  "pitch_cooldown_sec": 1.0,
+  "round_cooldown_sec": 6.0,
+  "sim_switch_timeout_sec": 15,
+  "stuck_timeout_sec": 120,
+  "gauge_yellow_min_px": 60,
+  "auto_update": true
+}
