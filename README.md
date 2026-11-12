@@ -7,20 +7,22 @@
 - 공통: 리그 메인 → PLAY BALL → 방식 선택 → START, 경기가 끝나면 [다음] → [다음] → [한 번 더 하기] 반복, 빈 곳을 눌러 컷씬 넘기기
 
 ## 받기
-**[전체 받기 (zip)](https://github.com/wnsgur2791-hy/LeagueFullPlay/archive/refs/heads/main.zip)** — 또는 이 페이지 위의 초록색 [Code] → [Download ZIP]
+**[배포용 zip 받기](https://github.com/wnsgur2791-hy/LeagueFullPlay/raw/main/dist/%EC%BB%B4%ED%94%84%EC%95%BC%EB%A7%A4%ED%81%AC%EB%A1%9C.zip)** (컴프야매크로.zip)
 
-1. zip을 풀면 나오는 `LeagueFullPlay` 폴더만 원하는 곳으로 옮기고, 그 안의 **사용법.txt** 를 따라 설치합니다.
-2. `run.bat` 으로 켭니다.
+1. zip을 풀면 나오는 `컴프야 매크로` 폴더를 원하는 곳에 두고, `LeagueFullPlay` 폴더 안의 **사용법.txt** 를 따라 설치합니다.
+2. **`컴프야 매크로.bat`** 으로 켭니다. (bat 파일과 `LeagueFullPlay` 폴더는 항상 같은 폴더에 두세요)
 
 ## 신고·건의
 프로그램의 [신고·건의] 버튼으로 고장 신고(로그·화면 사진 선택 첨부)나 건의를 개발자 디스코드로 보낼 수 있습니다.
 
 ## 자동 업데이트
-`run.bat` 으로 켤 때마다 이 저장소의 `latest.json`을 확인해서, 새 버전이면 바뀐 파일만 받아 자동으로 바꿉니다.
+`컴프야 매크로.bat` 으로 켤 때마다 이 저장소의 `latest.json`을 확인해서, 새 버전이면 바뀐 파일만 받아 자동으로 바꿉니다.
 내 설정(config.json), 로그, 저장한 화면은 그대로 남습니다.
 
 ## 폴더
+- `컴프야 매크로.bat` 실행 파일 (LeagueFullPlay 폴더 안의 프로그램을 켬)
 - `LeagueFullPlay/` 프로그램 원본
+- `dist/컴프야매크로.zip` 배포용 묶음 (새 버전을 올릴 때마다 자동으로 새로 만듦)
 - `latest.json` 최신 버전 번호와 파일 목록 (자동 업데이트가 읽음)
 - `config.json` 프로그램이 읽는 설정 (신고·건의 받는 주소)
 - `tools/release.py` 새 버전 배포하기

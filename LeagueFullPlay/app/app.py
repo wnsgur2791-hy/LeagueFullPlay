@@ -427,8 +427,8 @@ class App:
     def on_update_done(self, v):
         self.btn_update.configure(state="normal")
         if v:
-            self.log(f"v{v}을 받았어요. 프로그램을 껐다가 run.bat으로 다시 켜면 적용돼요.")
-            messagebox.showinfo("업데이트", f"v{v}을 받았어요.\n프로그램을 껐다가 run.bat으로 다시 켜면 적용돼요.")
+            self.log(f"v{v}을 받았어요. 프로그램을 껐다가 컴프야 매크로.bat으로 다시 켜면 적용돼요.")
+            messagebox.showinfo("업데이트", f"v{v}을 받았어요.\n프로그램을 껐다가 컴프야 매크로.bat으로 다시 켜면 적용돼요.")
         elif v is None:
             self.log("지금이 최신 버전이에요.")
 

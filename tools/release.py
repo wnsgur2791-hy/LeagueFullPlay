@@ -58,6 +58,31 @@ def manifest():
     return dict(sorted(files.items()))
 
 
+DIST_ZIP = os.path.join(HERE, 'dist', '컴프야매크로.zip')
+TOP = '컴프야 매크로'                       # zip 을 풀면 나오는 폴더 이름
+LAUNCHER = '컴프야 매크로.bat'
+USER_ONLY = {'config.json', '.installed'}   # 사용자 PC에서만 생기는 것 (넣지 않음)
+USER_DIRS = {'__pycache__', 'logs', 'captures', '업데이트백업'}
+
+
+def build_dist():
+    """배포용 zip: 컴프야 매크로/컴프야 매크로.bat + 컴프야 매크로/LeagueFullPlay/..."""
+    import zipfile
+    os.makedirs(os.path.dirname(DIST_ZIP), exist_ok=True)
+    n = 0
+    with zipfile.ZipFile(DIST_ZIP, 'w', zipfile.ZIP_DEFLATED) as z:
+        z.write(os.path.join(HERE, LAUNCHER), f'{TOP}/{LAUNCHER}')
+        for root, dirs, fs in os.walk(PROG):
+            dirs[:] = sorted(d for d in dirs if d not in USER_DIRS)
+            for f in sorted(fs):
+                rel = os.path.relpath(os.path.join(root, f), PROG).replace(os.sep, '/')
+                if rel in USER_ONLY or f.endswith(('.pyc', '.tmp')):
+                    continue
+                z.write(os.path.join(root, f), f'{TOP}/{PROG_NAME}/{rel}')
+                n += 1
+    return n
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
@@ -69,5 +94,7 @@ if __name__ == '__main__':
     latest = {'version': v, 'ref': ref, 'prog_dir': PROG_NAME, 'notes': notes, 'files': manifest()}
     with open(os.path.join(HERE, 'latest.json'), 'w', encoding='utf-8') as f:
         json.dump(latest, f, ensure_ascii=False, indent=1)
-    commit_push(f'latest.json -> v{v}')
+    nz = build_dist()
+    commit_push(f'latest.json + 배포용 zip -> v{v}')
+    print(f'배포용 zip: dist/컴프야매크로.zip (파일 {nz + 1}개)')
     print(f'v{v} 배포 완료 (ref {ref[:8]}, 파일 {len(latest["files"])}개)')

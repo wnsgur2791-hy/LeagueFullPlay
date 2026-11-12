@@ -1,6 +1,7 @@
 @echo off
 chcp 65001 >nul
-cd /d "%~dp0"
+cd /d "%~dp0LeagueFullPlay"
+if errorlevel 1 goto nofolder
 set PY=python
 where py >nul 2>nul
 if %errorlevel%==0 set PY=py -3
@@ -15,8 +16,12 @@ echo ok> .installed
 %PY% app\launcher.py
 if errorlevel 1 pause
 exit /b
+:nofolder
+echo [오류] 이 파일 옆에 LeagueFullPlay 폴더가 없습니다. 압축을 푼 폴더 그대로 두고 실행해주세요.
+pause
+exit /b
 :nopython
-echo [오류] 파이썬이 설치되어 있지 않습니다. 사용법.txt 의 1단계를 봐주세요.
+echo [오류] 파이썬이 설치되어 있지 않습니다. LeagueFullPlay 폴더 안의 사용법.txt 1단계를 봐주세요.
 pause
 exit /b
 :installfail
