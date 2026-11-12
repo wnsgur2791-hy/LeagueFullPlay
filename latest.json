@@ -1,0 +1,40 @@
+{
+ "version": "1.1.0",
+ "ref": "8d635878132609cb70b3ab281c4321773bea0f47",
+ "prog_dir": "LeagueFullPlay",
+ "notes": [
+  "자동 업데이트 추가 (켤 때 새 버전을 확인해서 바뀐 파일만 받아 적용)",
+  "adb.exe를 못 찾으면 직접 고를 수 있게",
+  "설정은 바꾼 값만 config.json에 저장"
+ ],
+ "files": {
+  "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
+  "app/app.py": "058b3873ad1ad9acb71b0740d06e92ebac2a79471f3d8217270224739929a1eb",
+  "app/bot.py": "955f69dc0b1cd22eb8fc397bb7e755c810a32eca937adca27f431184842a137c",
+  "app/config_default.json": "250d2f7f819d28370a844a1041dbfa7099088c9dc4bd6847a4db4a995065ac32",
+  "app/launcher.py": "fdecfd62d2586eff6669a9a2a5348f168ddd515bd2851290928f7c94d1910410",
+  "app/templates/alert_ok.png": "0cf6fb6e78ed0f106d65072a8eeb3ec3bab74eff9009767e38621a0dced2ccb5",
+  "app/templates/alert_sim.png": "f41cd9025b892656e10659c53534a7835a536c7e2fa53cfc93fc23f99f73ff4a",
+  "app/templates/catcher_lead.png": "116240d18938606cdfb8bf6a5c327401c108c9bb644c871935f96130870dd896",
+  "app/templates/coach_replace.png": "fa65c5ce17428b7ef48918f18e47bd637ab78906c5dae7fc14c4429b0151393c",
+  "app/templates/coach_title.png": "1d37ab186b735887e65ec3856217d16ea967faa9bd2c2039d778d2d540f20dc4",
+  "app/templates/gauge_zero.png": "4c24aa0c455ad616eb334c74484583d139e0651c1708d87a736944c1b9baf316",
+  "app/templates/menu_continue.png": "58983ca9a6f84d7ad12bbe2e267630cd7d3071c43df5fa47ea95a0c3bd40c12c",
+  "app/templates/menu_sim.png": "6c85312aa240af435567b5aa360abf5b8c29bb0933d9dc454f23bba3a8ed3fc0",
+  "app/templates/meta.json": "45b8e3a7a2d4bdf045ccdb98e86004a3d06270cb9dba0c8798af5a583e6d34a8",
+  "app/templates/mvp_next.png": "631d5bfa30c7962f1afa3a83e54ea40a74cedd1492e2aaed9066dd2a11661b88",
+  "app/templates/mvp_title.png": "ad569a7b8874831fc0565c183185666bec66499d3c14d8424658616d39a5efe5",
+  "app/templates/outs.png": "522fcc3b647be7226454714832af5b8248b96980f989d92ddcd0688196e173dd",
+  "app/templates/pause_btn.png": "5af881898495aaaac7314682cf30ab499a9e83e5ccb73ed13b062d9d86bd47ef",
+  "app/templates/pitch_off.png": "f596b1d289e50e2617d02b4c02485b14924ea30edc953dc1d2e02914d779b0aa",
+  "app/templates/pitch_on.png": "69e793a886035877bfe366d812860311dc3aef957d46cc8a29b6106ed6b973f2",
+  "app/templates/result_next.png": "96c35faaa76c58281948c09e3d6fe73f04919b3dbf627757cbd0ef5773296ae0",
+  "app/templates/result_title.png": "af48c5889af1dbc366a91291d25b92db804fbbfd730ae634bf5116adf991ae7f",
+  "app/templates/round_again.png": "3dc666276f26f58b7860c5187bc7591eaa95bcd51cde65ae861afef8f28cd17b",
+  "app/updater.py": "4fb8311251dadcbd5ffb835967d7e9a76b4af152c0ea288b9481976b00cc417c",
+  "app/version.py": "0c8d4bd0b351d384df23bbb60ab649d102e35e1b2065a0f033283edaaad28fb2",
+  "app/vision.py": "fd0f48a746259906120c7c6858235bd11a7fbb423ceaf11a5c0307dbf8f134ca",
+  "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
+  "사용법.txt": "ae304fe2189abf6fc3751badb23ae0f5748748ad7dcd54991f41e2414301dceb"
+ }
+}
