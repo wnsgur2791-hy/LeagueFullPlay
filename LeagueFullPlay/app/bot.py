@@ -33,6 +33,7 @@ class Brain:
         self.sim_done = False      # 이번 경기에서 이미 시뮬레이션으로 전환함
         self.sim_seq_since = None  # 일시정지~확인 진행 중이면 시작 시각
         self.yellow_hits = 0
+        self.menu_no_sim = 0       # 메뉴에서 '시뮬레이션 전환' 칸이 안 보인 연속 횟수
 
     def _ready(self, key, now, cooldown):
         if now - self.last_action.get(key, -1e9) >= cooldown:
@@ -69,13 +70,15 @@ class Brain:
 
         if has("alert_sim"):
             screen = "알림(시뮬레이션 전환)"
-            if self.need_sim and not self.sim_done:
-                if self._ready("alert_ok", now, cd):
-                    taps.append(self._pt(info, "alert_ok", (507, 856)))
-                    self.sim_done = True
-                    self.sim_seq_since = None
+            # 우리가 전환하려던 경기면 확인 (이미 전환됐다고 기록돼 있어도 창이 떠 있으면 누름)
+            if self.need_sim and self._ready("alert_ok", now, cd):
+                taps.append(self._pt(info, "alert_ok", (507, 856)))
+                if not self.sim_done:
                     self.sim_switches += 1
-                    logs.append("시뮬레이션 전환 확인 → 경기 끝까지 자동 진행")
+                self.sim_done = True
+                self.sim_seq_since = None
+                self.menu_no_sim = 0
+                logs.append("시뮬레이션 전환 확인 → 경기 끝까지 자동 진행")
         elif has("coach_title"):
             screen = "코치의 조언"
             if self._ready("coach", now, cd):
@@ -84,19 +87,25 @@ class Brain:
         elif has("menu_sim") or has("menu_continue"):
             screen = "일시정지 메뉴"
             if self.need_sim and not self.sim_done and has("menu_sim"):
+                self.menu_no_sim = 0
                 if self._ready("menu_sim", now, cd):
                     taps.append(self._pt(info, "menu_sim", (384, 954)))
                     if self.sim_seq_since is None:
                         self.sim_seq_since = now
                     logs.append("시뮬레이션 전환 선택")
-            else:
-                if self.need_sim and not self.sim_done:
-                    # 메뉴에 시뮬레이션 전환이 없음 = 이미 전환된 경기
+            elif self.need_sim and not self.sim_done:
+                # '시뮬레이션 전환' 칸이 안 보임: 알림창이 떠오르는 중일 수 있으니 기다림.
+                # 여러 번 연속으로(약 3초) 안 보일 때만 '이미 전환된 경기'로 보고 계속 하기
+                self.menu_no_sim += 1
+                if self.menu_no_sim >= 8:
                     self.sim_done = True
                     self.sim_seq_since = None
-                if self._ready("menu_continue", now, cd):
-                    taps.append(self._pt(info, "menu_continue", (541, 1149)))
-                    logs.append("일시정지 메뉴가 열려 있어 계속 하기")
+                    if self._ready("menu_continue", now, cd):
+                        taps.append(self._pt(info, "menu_continue", (541, 1149)))
+                        logs.append("메뉴에 시뮬레이션 전환이 없어 이미 전환된 경기로 보고 계속 하기")
+            elif self._ready("menu_continue", now, cd):
+                taps.append(self._pt(info, "menu_continue", (541, 1149)))
+                logs.append("일시정지 메뉴가 열려 있어 계속 하기")
         elif has("round_again"):
             screen = "라운드 결과"
             if self._ready("round_again", now, cfg["round_cooldown_sec"]):
