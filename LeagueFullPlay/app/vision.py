@@ -14,6 +14,17 @@ NORM_H = 1366
 SCALES = (1.0, 0.96, 1.04)
 
 
+def imread_any(path):
+    """한글 등이 들어간 경로도 읽기 (cv2.imread 는 윈도우에서 한글 경로를 못 읽음)"""
+    try:
+        data = np.fromfile(path, dtype=np.uint8)
+    except OSError:
+        return None
+    if data.size == 0:
+        return None
+    return cv2.imdecode(data, cv2.IMREAD_COLOR)
+
+
 class Vision:
     def __init__(self, template_dir):
         with open(os.path.join(template_dir, "meta.json"), encoding="utf-8") as f:
@@ -22,7 +33,7 @@ class Vision:
         self.select_cards = meta.pop("_select_cards", {})
         self.templates = {}
         for name, info in meta.items():
-            img = cv2.imread(os.path.join(template_dir, name + ".png"))
+            img = imread_any(os.path.join(template_dir, name + ".png"))
             if img is None:
                 raise FileNotFoundError(f"템플릿 파일이 없습니다: {name}.png")
             variants = []
