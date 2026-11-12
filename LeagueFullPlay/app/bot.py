@@ -239,6 +239,8 @@ class RcBrain:
         self.after_taps = 0
         self.started_logged = False
         self.last_free_tap = None
+        self.popup_seen = None     # (처음 본 시각, 판단) - 즉시 갱신 창
+        self.go_grey_since = None  # 연속 경기 창의 [경기 진행]이 회색으로 보이기 시작한 시각
 
     _ready = Brain._ready
 
@@ -257,10 +259,22 @@ class RcBrain:
         def has(name):
             return info.get(name, (False,))[0]
 
+        if not has("rc_cont_popup"):
+            self.go_grey_since = None
+        if not has("rc_refresh_popup"):
+            self.popup_seen = None
         if has("rc_refresh_popup"):
             screen = "즉시 갱신 창"
             pk = info.get("_rc_popup_kind") or "point"
-            if midnight or (pk == "star" and self.kind != "star"):
+            # 창이 떠오르는 중에는 스타 아이콘이 흐려서 포인트로 보일 수 있음 → 같은 판단이 1초 이상 유지될 때만 결제
+            if self.popup_seen is None or self.popup_seen[1] != pk:
+                self.popup_seen = (now, pk)
+            settled = now - self.popup_seen[0] >= 1.0
+            if pk == "star" and self.kind != "star":
+                settled = True                   # 스타가 한 번이라도 보이면 바로 닫기
+            if not settled:
+                pass
+            elif midnight or (pk == "star" and self.kind != "star"):
                 if self._ready("rc_close", now, 3.0):
                     taps.append(self._p("refresh_close"))
                     stop = ("자정이 되어 갱신하지 않고 멈췄어요." if midnight else
@@ -287,11 +301,17 @@ class RcBrain:
         elif has("rc_cont_popup"):
             screen = "연속 경기 창"
             if info.get("_rc_go_blue") is False:
-                stop = "연속 경기 창의 [경기 진행] 버튼이 눌리지 않는 상태라 멈췄어요."
-            elif self._ready("rc_go", now, 4.0):
-                taps.append(self._p("cont_go"))
-                self.series_since = now
-                logs.append("경기 진행 → 연속 경기 진행 중 (보통 5분)")
+                # 창이 떠오르는 중이면 버튼이 아직 파랗지 않음 → 파래질 때까지 기다림 (8초 넘게 회색이면 멈춤)
+                if self.go_grey_since is None:
+                    self.go_grey_since = now
+                elif now - self.go_grey_since > 8:
+                    stop = "연속 경기 창의 [경기 진행] 버튼이 8초 넘게 눌리지 않는 상태라 멈췄어요."
+            else:
+                self.go_grey_since = None
+                if self._ready("rc_go", now, 4.0):
+                    taps.append(self._p("cont_go"))
+                    self.series_since = now
+                    logs.append("경기 진행 → 연속 경기 진행 중 (보통 5분)")
         elif has("rc_lobby"):
             screen = "랭챌 로비"
             self.after_series = None
