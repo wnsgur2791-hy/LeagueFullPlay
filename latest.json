@@ -1,9 +1,9 @@
 {
- "version": "1.2.1",
- "ref": "e62c9f6c819b580cd3b336b04c130ef3fcc8954a",
+ "version": "1.2.2",
+ "ref": "fa156358592ee584b2866a78a092b31025d1b815",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "시뮬레이션 전환 알림창에서 확인을 누르지 않고 멈추던 문제 수정"
+  "업데이트 확인이 몇 분 늦게 반영되던 문제 수정 (GitHub API로 먼저 확인)"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
@@ -37,8 +37,8 @@
   "app/templates/round_again.png": "3dc666276f26f58b7860c5187bc7591eaa95bcd51cde65ae861afef8f28cd17b",
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
-  "app/updater.py": "4fb8311251dadcbd5ffb835967d7e9a76b4af152c0ea288b9481976b00cc417c",
-  "app/version.py": "d7a06d32eb997f9931d5d9b347be4c6831ff34245fbfb75bec50e20588e9108a",
+  "app/updater.py": "3e460716ce1969e021524450521c6511343712075219572872c3d7e6a87167f5",
+  "app/version.py": "6101e375c27b91493f4181f07fde712f5daf80e57b05145d565ee6bd1a9ba1ba",
   "app/vision.py": "3d8c3f11eb14edf11ffa4de64cc7415514d11ca0ae17e5d38d4466120268778a",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
   "사용법.txt": "7e57e9347241ec28ee19419e2ecc26dc2a81b14d266300cf92b02a47922630f7"
