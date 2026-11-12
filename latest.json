@@ -1,15 +1,16 @@
 {
- "version": "1.2.2",
- "ref": "fa156358592ee584b2866a78a092b31025d1b815",
+ "version": "1.2.3",
+ "ref": "f8fc43e9c6aa6b97a1263a97dcae247095387818",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "업데이트 확인이 몇 분 늦게 반영되던 문제 수정 (GitHub API로 먼저 확인)"
+  "포수 리드 버튼을 화면 아래쪽 절반 전체에서 찾도록 변경 (사람마다 위치가 달라도 동작)",
+  "[고급 설정] 탭 추가: 항목별 일치도와 게이지 기준을 바꾸고, 지금 화면 점수를 바로 확인"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "0ddc81705024b735857e79bb1d17e3809c90126fb8f660f289db91c5d0d23960",
+  "app/app.py": "f3d2e7577a79d0c1eb45675ee369e54cf1adfefabdc1d8e9cc5a4f6fd3071619",
   "app/bot.py": "e0f559204384b1b533ee24e318baad5cab194e3a39550e8215442f41dcc1a425",
-  "app/config_default.json": "a14b1fe48c6e27449aebbbba5193c55b82a77d84744c985ee8768567017779c9",
+  "app/config_default.json": "935bb69f7afab4dd0da25a1814deb95305adb8cd367c67206a6adcc510a0e58b",
   "app/launcher.py": "fdecfd62d2586eff6669a9a2a5348f168ddd515bd2851290928f7c94d1910410",
   "app/templates/alert_ok.png": "0cf6fb6e78ed0f106d65072a8eeb3ec3bab74eff9009767e38621a0dced2ccb5",
   "app/templates/alert_sim.png": "f41cd9025b892656e10659c53534a7835a536c7e2fa53cfc93fc23f99f73ff4a",
@@ -25,7 +26,7 @@
   "app/templates/main_title.png": "e40766faa606cb7a2cd3103e7e3bada1b5b7abbf56ccd532f159c1cc998867aa",
   "app/templates/menu_continue.png": "58983ca9a6f84d7ad12bbe2e267630cd7d3071c43df5fa47ea95a0c3bd40c12c",
   "app/templates/menu_sim.png": "6c85312aa240af435567b5aa360abf5b8c29bb0933d9dc454f23bba3a8ed3fc0",
-  "app/templates/meta.json": "4e5132f0356a4c495fcfed38e27d12fcb40970b7514112800405a4a5c15d0bb7",
+  "app/templates/meta.json": "58ced4abb70123133a82a39626ab50ae4c4cc5c1cfc799a68c0a38a124cb3364",
   "app/templates/mvp_next.png": "631d5bfa30c7962f1afa3a83e54ea40a74cedd1492e2aaed9066dd2a11661b88",
   "app/templates/mvp_title.png": "ad569a7b8874831fc0565c183185666bec66499d3c14d8424658616d39a5efe5",
   "app/templates/outs.png": "522fcc3b647be7226454714832af5b8248b96980f989d92ddcd0688196e173dd",
@@ -38,8 +39,8 @@
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "3e460716ce1969e021524450521c6511343712075219572872c3d7e6a87167f5",
-  "app/version.py": "6101e375c27b91493f4181f07fde712f5daf80e57b05145d565ee6bd1a9ba1ba",
-  "app/vision.py": "3d8c3f11eb14edf11ffa4de64cc7415514d11ca0ae17e5d38d4466120268778a",
+  "app/version.py": "1c0597cc9b28a7690b5588d10b11eb8f20b77bbd36f851c6117fec59ac97c466",
+  "app/vision.py": "2a57925974ed32595801c55f2e952adb2c0d06d8855fc4c0eb4d230f566a622d",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
   "사용법.txt": "7e57e9347241ec28ee19419e2ecc26dc2a81b14d266300cf92b02a47922630f7"
  }
