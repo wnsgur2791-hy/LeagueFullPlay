@@ -14,15 +14,22 @@ from vision import Vision
 
 
 class Brain:
+    """화면 인식 결과 -> 누를 곳 결정.
+
+    mode: 'full'(풀플레이) / 'highlight'(하이라이트) - 플레이 방식 선택 화면에서 고를 카드
+    경기 화면 자체로 어느 방식인지 알 수 있어서, 경기 중에는 보이는 화면대로 처리함
+    """
+
     def __init__(self, cfg):
         self.cfg = cfg
         self.games_done = 0
         self.sim_switches = 0
         self.last_action = {}
+        self.kind = None           # 지금 경기 종류: 'full' / 'highlight' (빈 곳 탭 위치에 씀)
         self.reset_game()
 
     def reset_game(self):
-        self.need_sim = False      # 135 달성 -> 시뮬레이션 전환 필요
+        self.need_sim = False      # 시뮬레이션 전환 필요 (풀: 135 달성 / 하이라이트: 바로)
         self.sim_done = False      # 이번 경기에서 이미 시뮬레이션으로 전환함
         self.sim_seq_since = None  # 일시정지~확인 진행 중이면 시작 시각
         self.yellow_hits = 0
@@ -38,12 +45,19 @@ class Brain:
         ok, _score, pt = info[name]
         return pt if ok and pt else fallback
 
+    def _neutral_point(self):
+        if self.kind == "highlight":
+            return self.cfg["neutral_tap_point_highlight"]
+        return self.cfg["neutral_tap_point"]
+
     def step(self, info, now):
-        """반환: (screen 이름, [탭할 좌표(정규화 기준)], [로그], 빈곳탭 허용여부, 'stop' 사유 또는 None)"""
+        """반환: (화면 이름, [탭할 좌표(정규화 기준)], [로그], 빈곳탭 좌표 또는 None, 'stop' 사유 또는 None)"""
         cfg = self.cfg
         taps, logs = [], []
         stop = None
+        neutral_ok = True
         cd = cfg["action_cooldown_sec"]
+        mode = cfg.get("mode", "full")
 
         # 시뮬레이션 전환 절차가 너무 오래 걸리면 처음부터 다시
         if self.sim_seq_since and now - self.sim_seq_since > cfg["sim_switch_timeout_sec"]:
@@ -67,15 +81,19 @@ class Brain:
             if self._ready("coach", now, cd):
                 taps.append(self._pt(info, "coach_replace", (664, 312)))
                 logs.append("투수 체력 저하 → 교체")
-        elif has("menu_sim"):
+        elif has("menu_sim") or has("menu_continue"):
             screen = "일시정지 메뉴"
-            if self.need_sim and not self.sim_done:
+            if self.need_sim and not self.sim_done and has("menu_sim"):
                 if self._ready("menu_sim", now, cd):
                     taps.append(self._pt(info, "menu_sim", (384, 954)))
                     if self.sim_seq_since is None:
                         self.sim_seq_since = now
                     logs.append("시뮬레이션 전환 선택")
             else:
+                if self.need_sim and not self.sim_done:
+                    # 메뉴에 시뮬레이션 전환이 없음 = 이미 전환된 경기
+                    self.sim_done = True
+                    self.sim_seq_since = None
                 if self._ready("menu_continue", now, cd):
                     taps.append(self._pt(info, "menu_continue", (541, 1149)))
                     logs.append("일시정지 메뉴가 열려 있어 계속 하기")
@@ -99,14 +117,52 @@ class Brain:
             screen = "경기 결과"
             if self._ready("result_next", now, cd):
                 taps.append(self._pt(info, "result_next", (568, 1273)))
+        elif has("select_title"):
+            screen = "플레이 방식 선택"
+            neutral_ok = False                       # 아래 '뒤로가기'가 눌리지 않게
+            want = "highlight" if mode == "highlight" else "full"
+            sel = info.get("_selected")
+            if sel != want:
+                if self._ready("select_card", now, cd):
+                    card = self.cfg_card(want)
+                    taps.append(card)
+                    logs.append(f"{'하이라이트' if want == 'highlight' else '풀플레이'} 선택")
+            elif self._ready("select_start", now, 3.0):
+                taps.append(self._pt(info, "select_start", (384, 1142)))
+                logs.append("START")
+                self.reset_game()
+                self.kind = want
+        elif has("main_title"):
+            screen = "리그 메인"
+            neutral_ok = False
+            if self._ready("main_playball", now, 3.0):
+                taps.append(self._pt(info, "main_playball", (384, 1094)))
+                logs.append("리그 메인 → PLAY BALL")
+        elif has("hl_title") and has("hl_skip"):
+            screen = "하이라이트 직접 플레이"
+            self.kind = "highlight"
+            if self._ready("hl_skip", now, cd):
+                taps.append(self._pt(info, "hl_skip", (204, 1299)))
+                logs.append("하이라이트 직접 플레이 → 건너 뛰기")
+        elif has("hl_view"):
+            screen = "하이라이트 진행"
+            self.kind = "highlight"
+            if not self.sim_done:
+                if not self.need_sim:
+                    self.need_sim = True
+                    logs.append("하이라이트 경기 → 바로 시뮬레이션으로 전환합니다.")
+                if has("hl_pause"):
+                    self._try_pause(info, now, taps, logs, "hl_pause", None)
         elif has("catcher_lead"):
             screen = "투구"
+            self.kind = "full"
             if self.need_sim and not self.sim_done:
-                self._try_pause(info, now, taps, logs)
+                self._try_pause(info, now, taps, logs, "pause_btn", (736, 32))
             elif self._ready("catcher_lead", now, cfg["pitch_cooldown_sec"]):
                 taps.append(self._pt(info, "catcher_lead", (642, 1085)))
         elif has("outs"):
             screen = "경기 진행"
+            self.kind = "full"
             # 미션 게이지 135 체크 확인 (자동 타격 중에만 보임)
             if not self.need_sim and not self.sim_done and has("gauge_zero"):
                 screen = "경기 진행(게이지 보임)"
@@ -118,7 +174,7 @@ class Brain:
                 else:
                     self.yellow_hits = 0
             if self.need_sim and not self.sim_done:
-                self._try_pause(info, now, taps, logs)
+                self._try_pause(info, now, taps, logs, "pause_btn", (736, 32))
             elif not self.sim_done:
                 # 투구 직접 플레이가 꺼져 있으면 켜기
                 off, on = info["pitch_off"], info["pitch_on"]
@@ -129,16 +185,25 @@ class Brain:
             screen = "알 수 없음"
 
         # 일시정지 → 메뉴 → 알림 확인 중에는 빈 곳 탭을 멈춤 (바깥 탭으로 창이 닫히지 않게)
-        allow_neutral = not (self.sim_seq_since and cfg["pause_neutral_tap_during_sim_switch"])
+        if self.sim_seq_since and cfg["pause_neutral_tap_during_sim_switch"]:
+            neutral_ok = False
         taps = [t for t in taps if t]
-        return screen, taps, logs, allow_neutral, stop
+        return screen, taps, logs, (self._neutral_point() if neutral_ok else None), stop
 
-    def _try_pause(self, info, now, taps, logs):
+    def cfg_card(self, want):
+        cards = self.cfg.get("_select_cards") or {}
+        if want in cards:
+            return tuple(cards[want]["tap"])
+        return (384, 556) if want == "highlight" else (607, 556)
+
+    def _try_pause(self, info, now, taps, logs, name, fallback):
         if self.sim_seq_since is None and self._ready("pause", now, 3.0):
-            ok, _s, pt = info["pause_btn"]
-            taps.append(pt if ok and pt else (736, 32))
-            self.sim_seq_since = now
-            logs.append("일시정지")
+            ok, _s, pt = info[name]
+            pt = pt if ok and pt else fallback
+            if pt:
+                taps.append(pt)
+                self.sim_seq_since = now
+                logs.append("일시정지")
 
 
 class Bot(threading.Thread):
@@ -158,7 +223,6 @@ class Bot(threading.Thread):
 
     def run(self):
         cfg = self.cfg
-        neutral = cfg["neutral_tap_point"]
         last_neutral = 0.0
         last_known = time.time()
         last_screen = None
@@ -183,7 +247,7 @@ class Bot(threading.Thread):
                 norm, sx, sy = Vision.normalize(frame)
                 info = self.vision.analyze(norm)
                 now = time.time()
-                screen, taps, logs, allow_neutral, stop = self.brain.step(info, now)
+                screen, taps, logs, neutral, stop = self.brain.step(info, now)
 
                 for l in logs:
                     self.on_log(l)
@@ -208,7 +272,7 @@ class Bot(threading.Thread):
                     self.adb.tap(x, y)
 
                 # 컷씬 스킵용 빈 곳 탭
-                if not taps and allow_neutral and now - last_neutral >= cfg["neutral_tap_interval_sec"]:
+                if not taps and neutral and now - last_neutral >= cfg["neutral_tap_interval_sec"]:
                     x, y = self.to_device(neutral, sx, sy)
                     self.adb.tap(x, y)
                     last_neutral = time.time()

@@ -174,5 +174,111 @@
   126,
   462,
   156
- ]
+ ],
+ "main_title": {
+  "box": [
+   254,
+   594,
+   514,
+   646
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "main_playball": {
+  "box": [
+   299,
+   1069,
+   469,
+   1121
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "select_title": {
+  "box": [
+   244,
+   209,
+   524,
+   258
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "select_start": {
+  "box": [
+   329,
+   1119,
+   439,
+   1166
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "hl_view": {
+  "box": [
+   400,
+   684,
+   536,
+   710
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "hl_pause": {
+  "box": [
+   634,
+   1284,
+   754,
+   1326
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "hl_title": {
+  "box": [
+   272,
+   269,
+   496,
+   324
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "hl_skip": {
+  "box": [
+   144,
+   1279,
+   266,
+   1319
+  ],
+  "margin": 50,
+  "threshold": 0.75
+ },
+ "_select_cards": {
+  "highlight": {
+   "tap": [
+    384,
+    556
+   ],
+   "strip": [
+    275,
+    338,
+    495,
+    352
+   ]
+  },
+  "full": {
+   "tap": [
+    607,
+    556
+   ],
+   "strip": [
+    497,
+    338,
+    720,
+    352
+   ]
+  }
+ }
 }

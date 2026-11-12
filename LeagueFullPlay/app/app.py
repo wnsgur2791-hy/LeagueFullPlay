@@ -80,6 +80,15 @@ class App:
         for b in (self.btn_connect, self.btn_start, self.btn_stop, self.btn_save, self.btn_test):
             b.pack(side="left", padx=3)
 
+        modef = ttk.Frame(root)
+        modef.pack(fill="x", **pad)
+        ttk.Label(modef, text="플레이 방식:").pack(side="left")
+        self.mode_var = tk.StringVar(value=self.cfg.get("mode", "full"))
+        ttk.Radiobutton(modef, text="풀플레이", value="full", variable=self.mode_var,
+                        command=self.change_mode).pack(side="left", padx=6)
+        ttk.Radiobutton(modef, text="하이라이트", value="highlight", variable=self.mode_var,
+                        command=self.change_mode).pack(side="left", padx=6)
+
         opt = ttk.Frame(root)
         opt.pack(fill="x", **pad)
         ttk.Label(opt, text="최대 경기 수 (0 = 무제한):").pack(side="left")
@@ -127,6 +136,12 @@ class App:
             self.log(f"v{m.get('from')} → v{m.get('to')} 으로 업데이트됐어요.")
             for line in str(m.get("notes") or "").splitlines():
                 self.log(f"  {line}")
+
+    def change_mode(self):
+        self.cfg["mode"] = self.mode_var.get()
+        save_config(self.cfg)
+        name = "하이라이트" if self.cfg["mode"] == "highlight" else "풀플레이"
+        self.log(f"플레이 방식: {name} (리그 메인/플레이 방식 선택 화면에서 이 방식으로 들어가요)")
 
     def toggle_auto_update(self):
         self.cfg["auto_update"] = bool(self.auto_upd_var.get())
@@ -242,7 +257,9 @@ class App:
             self.cfg["max_games"] = max(0, int(self.max_var.get()))
         except ValueError:
             self.cfg["max_games"] = 0
+        self.cfg["mode"] = self.mode_var.get()
         save_config(self.cfg)
+        self.log("플레이 방식: " + ("하이라이트" if self.cfg["mode"] == "highlight" else "풀플레이"))
         self.bot = Bot(self.adb, self.vision, self.cfg,
                        on_log=lambda m: self.q.put(("log", m)),
                        on_status=lambda *a: self.q.put(("status", a)),

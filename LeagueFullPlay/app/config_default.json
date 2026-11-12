@@ -2,11 +2,16 @@
   "adb_path": "",
   "serial": "",
   "max_games": 0,
+  "mode": "full",
   "loop_interval_sec": 0.35,
   "neutral_tap_interval_sec": 0.7,
   "neutral_tap_point": [
     46,
     818
+  ],
+  "neutral_tap_point_highlight": [
+    384,
+    266
   ],
   "pause_neutral_tap_during_sim_switch": true,
   "action_cooldown_sec": 1.5,

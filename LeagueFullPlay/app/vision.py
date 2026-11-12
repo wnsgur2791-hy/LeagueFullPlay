@@ -19,6 +19,7 @@ class Vision:
         with open(os.path.join(template_dir, "meta.json"), encoding="utf-8") as f:
             meta = json.load(f)
         self.check_box = meta.pop("_gauge_135_check_box")
+        self.select_cards = meta.pop("_select_cards", {})
         self.templates = {}
         for name, info in meta.items():
             img = cv2.imread(os.path.join(template_dir, name + ".png"))
@@ -76,6 +77,18 @@ class Vision:
         mask = (r > 190) & (g > 160) & (b < 100) & (r - b > 110)
         return int(mask.sum())
 
+    def selected_card(self, norm):
+        """플레이 방식 선택 화면에서 하늘색 테두리로 선택된 카드 ('highlight' / 'full' / None)"""
+        best, best_n = None, 0
+        for name, c in self.select_cards.items():
+            x1, y1, x2, y2 = c["strip"]
+            roi = norm[y1:y2, x1:x2].astype(np.int16)
+            b, g, r = roi[..., 0], roi[..., 1], roi[..., 2]
+            n = int(((b > 200) & (g > 180) & (r < 120)).sum())
+            if n > best_n:
+                best, best_n = name, n
+        return best if best_n >= 300 else None
+
     def analyze(self, norm):
         """화면에서 필요한 모든 정보를 한 번에 계산"""
         info = {}
@@ -83,4 +96,5 @@ class Vision:
             ok, score, pt = self.found(norm, name)
             info[name] = (ok, score, pt)
         info["_yellow135"] = self.gauge_135_yellow(norm)
+        info["_selected"] = self.selected_card(norm) if info.get("select_title", (False,))[0] else None
         return info
