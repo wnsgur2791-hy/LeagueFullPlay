@@ -21,5 +21,6 @@
   "stuck_timeout_sec": 120,
   "gauge_yellow_min_px": 60,
   "auto_update": true,
-  "thresholds": {}
+  "thresholds": {},
+  "report_name": ""
 }

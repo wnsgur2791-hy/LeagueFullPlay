@@ -1,0 +1,4 @@
+{
+ "_설명": "리그 풀플레이가 읽는 설정. discord_webhook_b64 = [신고·건의]를 받을 디스코드 웹훅 주소(base64). 주소를 바꾸면 프로그램 업데이트 없이 바로 반영돼요.",
+ "discord_webhook_b64": "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU3MDI4NTgxNjQ4MjM2OTU2Ni8ya3ZJY0hwZ2dOZkZMbTVydy1TVlI3R0ZBWUN1eHdTVkdmVks0a2Vqa3E3MmVsMlp4OEN1MlFhMGVYekVoTHRiSXN6aQ=="
+}

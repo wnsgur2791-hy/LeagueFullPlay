@@ -9,15 +9,18 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import filedialog, messagebox, ttk
 
+import cv2
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))   # 프로그램 코드 (업데이트로 바뀜)
 ROOT_DIR = os.path.dirname(APP_DIR)                     # 내 설정·로그·저장 화면 (업데이트로 안 바뀜)
 os.chdir(ROOT_DIR)
 sys.path.insert(0, APP_DIR)
 
+import report  # noqa: E402
 import updater  # noqa: E402
 from adb_client import Adb, AdbError  # noqa: E402
 from bot import Bot, Brain, save_capture  # noqa: E402
-from version import VERSION  # noqa: E402
+from version import REPO, VERSION  # noqa: E402
 from vision import Vision  # noqa: E402
 
 DEFAULT_CONFIG = os.path.join(APP_DIR, "config_default.json")
@@ -114,7 +117,8 @@ class App:
         self.btn_stop = ttk.Button(btns, text="■ 정지", command=self.stop, state="disabled")
         self.btn_save = ttk.Button(btns, text="화면 저장", command=self.save_screen)
         self.btn_test = ttk.Button(btns, text="인식 테스트", command=self.test_screen)
-        for b in (self.btn_connect, self.btn_start, self.btn_stop, self.btn_save, self.btn_test):
+        self.btn_report = ttk.Button(btns, text="신고·건의", command=self.open_report)
+        for b in (self.btn_connect, self.btn_start, self.btn_stop, self.btn_save, self.btn_test, self.btn_report):
             b.pack(side="left", padx=3)
 
         modef = ttk.Frame(main)
@@ -161,6 +165,125 @@ class App:
         self.root.after(100, self.poll)
         self.log(f"리그 풀플레이 v{VERSION}을 켰습니다. 먼저 [연결 확인]을 눌러주세요.")
         self.root.after(3000, self.confirm_update)
+
+    # ---------- 신고·건의 ----------
+    def open_report(self):
+        if getattr(self, "report_win", None) and self.report_win.winfo_exists():
+            self.report_win.lift()
+            return
+        win = tk.Toplevel(self.root)
+        win.title("신고·건의")
+        self.report_win = win
+        pad = {"padx": 10, "pady": 4}
+
+        kindf = ttk.Frame(win)
+        kindf.pack(fill="x", **pad)
+        ttk.Label(kindf, text="종류:").pack(side="left")
+        kind_var = tk.StringVar(value="bug")
+        ttk.Radiobutton(kindf, text="고장 신고", value="bug", variable=kind_var).pack(side="left", padx=6)
+        ttk.Radiobutton(kindf, text="건의", value="idea", variable=kind_var).pack(side="left", padx=6)
+
+        namef = ttk.Frame(win)
+        namef.pack(fill="x", **pad)
+        ttk.Label(namef, text="이름(선택):").pack(side="left")
+        name_var = tk.StringVar(value=self.cfg.get("report_name", ""))
+        ttk.Entry(namef, textvariable=name_var, width=24).pack(side="left", padx=6)
+
+        ttk.Label(win, text="내용 (어떤 화면에서 무엇이 잘못됐는지, 또는 바라는 점을 적어주세요)").pack(anchor="w", **pad)
+        text = tk.Text(win, width=60, height=8, wrap="word")
+        text.pack(fill="both", expand=True, padx=10)
+
+        attf = ttk.LabelFrame(win, text="고장 신고에 같이 보낼 것")
+        attf.pack(fill="x", **pad)
+        log_var = tk.BooleanVar(value=True)
+        scr_var = tk.BooleanVar(value=True)
+        cb_log = ttk.Checkbutton(attf, text="최근 로그", variable=log_var)
+        cb_scr = ttk.Checkbutton(attf, text="지금 게임 화면 사진 (게임 닉네임이 보일 수 있어요)", variable=scr_var)
+        cb_log.pack(anchor="w", padx=6)
+        cb_scr.pack(anchor="w", padx=6)
+        ttk.Label(attf, text="버전·플레이 방식·해상도·현재 화면 판단은 자동으로 같이 가요.",
+                  foreground="#666666").pack(anchor="w", padx=6, pady=(0, 4))
+
+        def on_kind(*_):
+            st = "normal" if kind_var.get() == "bug" else "disabled"
+            cb_log.configure(state=st)
+            cb_scr.configure(state=st)
+            attf.configure(text="고장 신고에 같이 보낼 것" if st == "normal" else "건의는 글만 보내요")
+        kind_var.trace_add("write", on_kind)
+
+        btnf = ttk.Frame(win)
+        btnf.pack(fill="x", **pad)
+        send_btn = ttk.Button(btnf, text="보내기")
+        send_btn.pack(side="right")
+        ttk.Button(btnf, text="닫기", command=win.destroy).pack(side="right", padx=6)
+
+        def do_send():
+            body = text.get("1.0", "end").strip()
+            if not body:
+                messagebox.showinfo("신고·건의", "내용을 적어주세요.", parent=win)
+                return
+            wait = 30 - (time.time() - getattr(self, "last_report", 0))
+            if wait > 0:
+                messagebox.showinfo("신고·건의", f"{int(wait) + 1}초 뒤에 다시 보낼 수 있어요.", parent=win)
+                return
+            self.cfg["report_name"] = name_var.get().strip()
+            save_config(self.cfg)
+            send_btn.configure(state="disabled", text="보내는 중...")
+            kind = kind_var.get()
+            opts = {"log": kind == "bug" and log_var.get(), "screen": kind == "bug" and scr_var.get()}
+            threading.Thread(target=self._send_report, daemon=True,
+                             args=(kind, name_var.get(), body, opts, win, send_btn)).start()
+        send_btn.configure(command=do_send)
+
+    def _send_report(self, kind, name, body, opts, win, send_btn):
+        try:
+            info = []
+            log_text = screen = None
+            if kind == "bug":
+                w_h = f"{self.adb.size[0]}x{self.adb.size[1]}" if self.adb and self.adb.size else "연결 안 됨"
+                mode = "하이라이트" if self.cfg.get("mode") == "highlight" else "풀플레이"
+                info = [f"v{VERSION} · {mode} · {w_h} · 현재 화면: {self.screen_var.get()} · "
+                        f"완료 {self.games_var.get()}경기"]
+                if opts["log"]:
+                    try:
+                        with open(self.log_path, encoding="utf-8") as f:
+                            log_text = "".join(f.readlines()[-200:])
+                    except OSError:
+                        log_text = None
+                if opts["screen"]:
+                    frame = None
+                    if self.bot and self.bot.is_alive() and self.bot.last_frame is not None:
+                        frame = self.bot.last_frame
+                    elif self.adb:
+                        try:
+                            frame = self.adb.screencap()
+                        except Exception:
+                            frame = None
+                    if frame is not None:
+                        h, w = frame.shape[:2]
+                        small = cv2.resize(frame, (540, int(h * 540 / w)), interpolation=cv2.INTER_AREA)
+                        ok, buf = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                        screen = buf.tobytes() if ok else None
+            else:
+                info = [f"v{VERSION}"]
+            report.send(REPO, VERSION, kind, name, body, info, log_text, screen)
+            self.last_report = time.time()
+            self.q.put(("report_done", (True, "보냈어요. 고마워요!", win, send_btn)))
+        except Exception as e:
+            self.q.put(("report_done", (False, f"보내지 못했어요: {e}\n인터넷 연결을 확인하고 다시 시도해주세요.",
+                                        win, send_btn)))
+
+    def on_report_done(self, data):
+        ok, msg, win, send_btn = data
+        self.log("신고·건의: " + msg.splitlines()[0])
+        try:
+            if win.winfo_exists():
+                send_btn.configure(state="normal", text="보내기")
+                messagebox.showinfo("신고·건의", msg, parent=win)
+                if ok:
+                    win.destroy()
+        except tk.TclError:
+            pass
 
     # ---------- 고급 설정 ----------
     def build_advanced(self, parent):
@@ -337,6 +460,8 @@ class App:
                     self.on_bot_stopped(data)
                 elif kind == "update_done":
                     self.on_update_done(data)
+                elif kind == "report_done":
+                    self.on_report_done(data)
         except queue.Empty:
             pass
         if self.started_at:
