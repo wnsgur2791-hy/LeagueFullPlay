@@ -1,9 +1,10 @@
 {
- "version": "1.3.2",
- "ref": "69261be1f00c5d253b7276ef7bc6b460e0b09601",
+ "version": "1.3.3",
+ "ref": "5c50f1e47ce171b5e07217414ba27823c66b1124",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "폴더 경로에 한글이 있으면 버튼 그림을 못 읽고 꺼지던 문제 수정"
+  "파이썬이 없으면 '컴프야 매크로.bat'이 자동으로 설치 (새 배포용 zip부터)",
+  "사용법 1단계를 자동 설치 안내로 변경"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
@@ -39,9 +40,9 @@
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "6d9cccbea3ed6edecd9e6e23c1720b1ce213358152e312c6a5380fe7d1b56c8e",
-  "app/version.py": "abaf3b7cc65dfcd86b90037c95cf47e08fe51a7ff0003eeb9d97044ad87637ff",
+  "app/version.py": "ca931b51b3f361c6a54a6153c282d7c15c805b22da2f77d08d85e1da14807e31",
   "app/vision.py": "cd6b1eb0e48d9a464af447373d59e8b6eac0884328a8c33e2c0c80de5c9f76a6",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
-  "사용법.txt": "9c911ca12d1e04255ab6a99b0b1269c4a0cf1ec83a54749e7d94c046c7ff47eb"
+  "사용법.txt": "06165a82beb7641bf6d28377c6ae026d056af632fd80d402c66993f78a787885"
  }
 }
