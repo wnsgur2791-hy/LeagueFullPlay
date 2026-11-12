@@ -20,5 +20,6 @@
   "sim_switch_timeout_sec": 15,
   "stuck_timeout_sec": 120,
   "gauge_yellow_min_px": 60,
-  "auto_update": true
+  "auto_update": true,
+  "thresholds": {}
 }

@@ -35,8 +35,20 @@ class Vision:
                 "imgs": variants,
                 "box": info["box"],
                 "margin": info["margin"],
+                "search": info.get("search"),          # 있으면 이 넓은 영역 전체에서 찾음
                 "threshold": info["threshold"],
+                "default_threshold": info["threshold"],
             }
+
+    def set_thresholds(self, overrides):
+        """고급 설정에서 바꾼 일치도 적용 ({이름: 값}). 목록에 없는 건 기본값으로"""
+        overrides = overrides or {}
+        for name, t in self.templates.items():
+            try:
+                v = float(overrides.get(name, t["default_threshold"]))
+            except (TypeError, ValueError):
+                v = t["default_threshold"]
+            t["threshold"] = min(0.99, max(0.3, v))
 
     @staticmethod
     def normalize(frame):
@@ -48,10 +60,13 @@ class Vision:
     def match(self, norm, name):
         """(점수, 중심좌표(정규화 기준)) 반환"""
         t = self.templates[name]
-        x1, y1, x2, y2 = t["box"]
-        m = t["margin"]
-        rx1, ry1 = max(0, x1 - m), max(0, y1 - m)
-        rx2, ry2 = min(NORM_W, x2 + m), min(NORM_H, y2 + m)
+        if t["search"]:
+            rx1, ry1, rx2, ry2 = t["search"]
+        else:
+            x1, y1, x2, y2 = t["box"]
+            m = t["margin"]
+            rx1, ry1 = max(0, x1 - m), max(0, y1 - m)
+            rx2, ry2 = min(NORM_W, x2 + m), min(NORM_H, y2 + m)
         roi = norm[ry1:ry2, rx1:rx2]
         best, best_pt = -1.0, None
         for tpl in t["imgs"]:

@@ -21,6 +21,35 @@ from version import VERSION  # noqa: E402
 from vision import Vision  # noqa: E402
 
 DEFAULT_CONFIG = os.path.join(APP_DIR, "config_default.json")
+
+# 고급 설정에 보여줄 이름 (화면 흐름 순서)
+TEMPLATE_NAMES = {
+    "main_title": "리그 메인 (NEXT MATCH)",
+    "main_playball": "리그 메인 PLAY BALL 버튼",
+    "select_title": "플레이 방식 선택 (SELECT TYPE)",
+    "select_start": "START 버튼",
+    "catcher_lead": "포수 리드 버튼 (투구 화면)",
+    "pitch_off": "투구 OFF 표시",
+    "pitch_on": "투구 ON 표시",
+    "outs": "경기 중 OUTS 글자",
+    "gauge_zero": "미션 게이지 (0칸 체크)",
+    "pause_btn": "풀플레이 일시정지 버튼",
+    "coach_title": "코치의 조언 제목",
+    "coach_replace": "코치의 조언 교체 버튼",
+    "hl_view": "하이라이트 화면 (ON THE MOUND)",
+    "hl_pause": "하이라이트 일시정지 버튼",
+    "hl_title": "하이라이트 직접 플레이 제목",
+    "hl_skip": "건너 뛰기 버튼",
+    "menu_sim": "메뉴 '시뮬레이션 전환'",
+    "menu_continue": "메뉴 '계속 하기'",
+    "alert_sim": "알림창 문구",
+    "alert_ok": "알림창 확인 버튼",
+    "result_title": "경기 결과 제목",
+    "result_next": "경기 결과 다음 버튼",
+    "mvp_title": "반복과제 보상 제목",
+    "mvp_next": "반복과제 보상 다음 버튼",
+    "round_again": "한 번 더 하기 버튼",
+}
 USER_CONFIG = os.path.join(ROOT_DIR, "config.json")
 
 
@@ -63,14 +92,22 @@ class App:
         os.makedirs("logs", exist_ok=True)
         self.log_path = os.path.join("logs", f"log_{datetime.now():%Y%m%d}.txt")
 
+        self.vision.set_thresholds(self.cfg.get("thresholds"))
         pad = {"padx": 8, "pady": 4}
-        top = ttk.Frame(root)
+        nb = ttk.Notebook(root)
+        nb.pack(fill="both", expand=True)
+        main = ttk.Frame(nb)
+        adv = ttk.Frame(nb)
+        nb.add(main, text="실행")
+        nb.add(adv, text="고급 설정")
+        self.build_advanced(adv)
+        top = ttk.Frame(main)
         top.pack(fill="x", **pad)
         self.conn_var = tk.StringVar(value="연결 안 됨")
         ttk.Label(top, text="LDPlayer:").pack(side="left")
         ttk.Label(top, textvariable=self.conn_var).pack(side="left", padx=6)
 
-        btns = ttk.Frame(root)
+        btns = ttk.Frame(main)
         btns.pack(fill="x", **pad)
         self.btn_connect = ttk.Button(btns, text="연결 확인", command=self.connect)
         self.btn_start = ttk.Button(btns, text="▶ 시작", command=self.start)
@@ -80,7 +117,7 @@ class App:
         for b in (self.btn_connect, self.btn_start, self.btn_stop, self.btn_save, self.btn_test):
             b.pack(side="left", padx=3)
 
-        modef = ttk.Frame(root)
+        modef = ttk.Frame(main)
         modef.pack(fill="x", **pad)
         ttk.Label(modef, text="플레이 방식:").pack(side="left")
         self.mode_var = tk.StringVar(value=self.cfg.get("mode", "full"))
@@ -89,7 +126,7 @@ class App:
         ttk.Radiobutton(modef, text="하이라이트", value="highlight", variable=self.mode_var,
                         command=self.change_mode).pack(side="left", padx=6)
 
-        opt = ttk.Frame(root)
+        opt = ttk.Frame(main)
         opt.pack(fill="x", **pad)
         ttk.Label(opt, text="최대 경기 수 (0 = 무제한):").pack(side="left")
         self.max_var = tk.StringVar(value=str(self.cfg.get("max_games", 0)))
@@ -100,7 +137,7 @@ class App:
         self.btn_update = ttk.Button(opt, text="업데이트 확인", command=self.check_update)
         self.btn_update.pack(side="left")
 
-        stat = ttk.LabelFrame(root, text="진행 상황")
+        stat = ttk.LabelFrame(main, text="진행 상황")
         stat.pack(fill="x", **pad)
         self.screen_var = tk.StringVar(value="-")
         self.games_var = tk.StringVar(value="0")
@@ -112,7 +149,7 @@ class App:
             ttk.Label(stat, text=k).grid(row=i, column=0, sticky="w", padx=8, pady=2)
             ttk.Label(stat, textvariable=v).grid(row=i, column=1, sticky="w", padx=8, pady=2)
 
-        logf = ttk.LabelFrame(root, text="로그")
+        logf = ttk.LabelFrame(main, text="로그")
         logf.pack(fill="both", expand=True, **pad)
         self.log_box = tk.Text(logf, height=18, width=72, state="disabled", wrap="word")
         sb = ttk.Scrollbar(logf, command=self.log_box.yview)
@@ -124,6 +161,106 @@ class App:
         self.root.after(100, self.poll)
         self.log(f"리그 풀플레이 v{VERSION}을 켰습니다. 먼저 [연결 확인]을 눌러주세요.")
         self.root.after(3000, self.confirm_update)
+
+    # ---------- 고급 설정 ----------
+    def build_advanced(self, parent):
+        ttk.Label(parent, justify="left", wraplength=560, text=(
+            "일치도: 화면의 그림이 버튼 그림과 얼마나 닮아야 '찾았다'고 볼지 정하는 기준이에요 (0.30~0.99).\n"
+            "· 버튼을 못 찾고 지나가면 → 그 항목을 조금 낮추세요 (예: 0.75 → 0.70)\n"
+            "· 엉뚱한 화면에서 버튼을 눌러버리면 → 그 항목을 조금 높이세요\n"
+            "[지금 화면 점수 보기]를 누르면 지금 게임 화면에서 각 항목의 점수가 나와요. "
+            "점수가 일치도 이상이면 초록색(찾음), 아래면 회색이에요. 바꾼 값은 [저장]을 눌러야 적용돼요."
+        )).pack(fill="x", padx=8, pady=(8, 4))
+
+        bar = ttk.Frame(parent)
+        bar.pack(fill="x", padx=8, pady=4)
+        ttk.Button(bar, text="지금 화면 점수 보기", command=self.adv_show_scores).pack(side="left", padx=3)
+        ttk.Button(bar, text="저장", command=self.adv_save).pack(side="left", padx=3)
+        ttk.Button(bar, text="모두 기본값으로", command=self.adv_reset).pack(side="left", padx=3)
+
+        # 항목이 많아서 스크롤되는 표로 만듦
+        box = ttk.Frame(parent)
+        box.pack(fill="both", expand=True, padx=8, pady=4)
+        canvas = tk.Canvas(box, height=380, highlightthickness=0)
+        sb = ttk.Scrollbar(box, orient="vertical", command=canvas.yview)
+        table = ttk.Frame(canvas)
+        table.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=table, anchor="nw")
+        canvas.configure(yscrollcommand=sb.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        sb.pack(side="right", fill="y")
+        wheel = lambda e: canvas.yview_scroll(int(-e.delta / 120), "units")
+        canvas.bind("<Enter>", lambda e: canvas.bind_all("<MouseWheel>", wheel))
+        canvas.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
+
+        for col, head in enumerate(("항목", "일치도", "기본값", "지금 화면 점수")):
+            ttk.Label(table, text=head, font=("", 9, "bold")).grid(row=0, column=col, sticky="w", padx=6, pady=2)
+        self.adv_vars, self.adv_score_labels = {}, {}
+        names = [n for n in TEMPLATE_NAMES if n in self.vision.templates]
+        names += [n for n in self.vision.templates if n not in TEMPLATE_NAMES]
+        for i, name in enumerate(names, start=1):
+            t = self.vision.templates[name]
+            ttk.Label(table, text=TEMPLATE_NAMES.get(name, name)).grid(row=i, column=0, sticky="w", padx=6)
+            var = tk.StringVar(value=f"{t['threshold']:.2f}")
+            ttk.Spinbox(table, from_=0.30, to=0.99, increment=0.01, width=6, textvariable=var,
+                        format="%.2f").grid(row=i, column=1, padx=6)
+            ttk.Label(table, text=f"{t['default_threshold']:.2f}").grid(row=i, column=2, padx=6)
+            lab = tk.Label(table, text="-", width=8, anchor="w")
+            lab.grid(row=i, column=3, padx=6, sticky="w")
+            self.adv_vars[name] = var
+            self.adv_score_labels[name] = lab
+        r = len(names) + 1
+        ttk.Separator(table).grid(row=r, column=0, columnspan=4, sticky="ew", pady=4)
+        ttk.Label(table, text="게이지 135 체크 노란 픽셀 수 (이상이면 달성)").grid(row=r + 1, column=0, sticky="w", padx=6)
+        self.adv_gauge_var = tk.StringVar(value=str(self.cfg.get("gauge_yellow_min_px", 60)))
+        ttk.Spinbox(table, from_=5, to=400, increment=5, width=6,
+                    textvariable=self.adv_gauge_var).grid(row=r + 1, column=1, padx=6)
+        ttk.Label(table, text="60").grid(row=r + 1, column=2, padx=6)
+        self.adv_gauge_label = tk.Label(table, text="-", width=8, anchor="w")
+        self.adv_gauge_label.grid(row=r + 1, column=3, padx=6, sticky="w")
+
+    def adv_show_scores(self):
+        frame = self.grab()
+        if frame is None:
+            return
+        self.adv_save(quiet=True)
+        norm, _, _ = Vision.normalize(frame)
+        info = self.vision.analyze(norm)
+        for name, lab in self.adv_score_labels.items():
+            ok, score, _pt = info[name]
+            lab.configure(text=f"{score:.2f}", fg=("#1a8f2e" if ok else "#888888"))
+        y = info["_yellow135"]
+        self.adv_gauge_label.configure(text=str(y),
+                                       fg=("#1a8f2e" if y >= self.cfg["gauge_yellow_min_px"] else "#888888"))
+        self.log("고급 설정: 지금 화면의 점수를 표시했어요.")
+
+    def adv_save(self, quiet=False):
+        th = {}
+        for name, var in self.adv_vars.items():
+            try:
+                v = round(min(0.99, max(0.30, float(var.get()))), 2)
+            except ValueError:
+                v = self.vision.templates[name]["default_threshold"]
+            var.set(f"{v:.2f}")
+            if abs(v - self.vision.templates[name]["default_threshold"]) > 1e-6:
+                th[name] = v
+        self.cfg["thresholds"] = th
+        try:
+            self.cfg["gauge_yellow_min_px"] = max(1, int(float(self.adv_gauge_var.get())))
+        except ValueError:
+            pass
+        self.adv_gauge_var.set(str(self.cfg["gauge_yellow_min_px"]))
+        self.vision.set_thresholds(th)        # 진행 중이어도 바로 적용
+        save_config(self.cfg)
+        if not quiet:
+            changed = ", ".join(f"{TEMPLATE_NAMES.get(k, k)} {v:.2f}" for k, v in th.items()) or "모두 기본값"
+            self.log(f"고급 설정 저장: {changed} / 게이지 기준 {self.cfg['gauge_yellow_min_px']}")
+
+    def adv_reset(self):
+        for name, var in self.adv_vars.items():
+            var.set(f"{self.vision.templates[name]['default_threshold']:.2f}")
+        self.adv_gauge_var.set("60")
+        self.adv_save()
 
     # ---------- 업데이트 ----------
     def confirm_update(self):
