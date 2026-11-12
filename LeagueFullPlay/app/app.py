@@ -75,6 +75,8 @@ def load_config():
         pass
     except Exception as e:
         print(f"config.json을 읽지 못해서 기본 설정을 씁니다: {e}")
+    if cfg.get("mode") in ("rc_point", "rc_star"):     # v1.4.1까지의 포갱/스갱 선택 → 요일별 갱신으로
+        cfg["mode"] = "rc_custom"
     return cfg
 
 
@@ -137,9 +139,8 @@ class App:
         r2 = ttk.Frame(modef)
         r2.pack(fill="x", padx=6, pady=2)
         ttk.Label(r2, text="랭킹챌린지", width=10).pack(side="left")
-        for text, val in (("포갱", "rc_point"), ("스갱", "rc_star"), ("사용자 지정 (요일별)", "rc_custom")):
-            ttk.Radiobutton(r2, text=text, value=val, variable=self.mode_var,
-                            command=self.change_mode).pack(side="left", padx=6)
+        ttk.Radiobutton(r2, text="요일별 갱신 (아래 표대로 포갱/스갱)", value="rc_custom", variable=self.mode_var,
+                        command=self.change_mode).pack(side="left", padx=6)
         r3 = ttk.Frame(modef)
         r3.pack(fill="x", padx=6, pady=(2, 6))
         ttk.Label(r3, text="요일별 갱신", width=10).pack(side="left")
@@ -429,7 +430,7 @@ class App:
         mode = mode or self.cfg.get("mode", "full")
         if mode == "rc_custom":
             k = rc_kind_for(self.cfg, datetime.now().date())
-            return f"랭챌 사용자 지정 (오늘은 {'스갱' if k == 'star' else '포갱'})"
+            return f"랭챌 요일별 갱신 (오늘은 {'스갱' if k == 'star' else '포갱'})"
         return {"full": "리그 풀플레이", "highlight": "리그 하이라이트",
                 "rc_point": "랭챌 포갱", "rc_star": "랭챌 스갱"}.get(mode, mode)
 
