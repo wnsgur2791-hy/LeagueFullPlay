@@ -1,16 +1,16 @@
 {
- "version": "1.3.3",
- "ref": "5c50f1e47ce171b5e07217414ba27823c66b1124",
+ "version": "1.4.0",
+ "ref": "545861156984c976023300f696034fc66b83e37e",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "파이썬이 없으면 '컴프야 매크로.bat'이 자동으로 설치 (새 배포용 zip부터)",
-  "사용법 1단계를 자동 설치 안내로 변경"
+  "랭킹챌린지 매크로 추가: 포갱 / 스갱 / 요일별 사용자 지정",
+  "연속 경기 → 결과 확인 → 갱신 반복, 다음 갱신을 못 쓰면 마지막 5경기는 남겨 두고 멈춤, 자정에 멈춤"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "07e23c6e30f3fd1401265883eecbe2e307119af5310626e9a7ff1443e7dcecb8",
-  "app/bot.py": "e0f559204384b1b533ee24e318baad5cab194e3a39550e8215442f41dcc1a425",
-  "app/config_default.json": "1d1849bf1e007f3f8b95bc1db761908c155a8b16bb9d915078f6f99fe64c0a7f",
+  "app/app.py": "ba99c9a6edba1a3bda19aa3338651882ad0e9dc70c51242f6e6e07e10025d711",
+  "app/bot.py": "3eaa2246de39cf4b61c8d7404f9a57adfb629f70684266c8a444552a367e67b9",
+  "app/config_default.json": "5448b951dd86a3fd93e91af18cf4a0e80db7954a2cff5174c3f1e2bb52fba6c3",
   "app/launcher.py": "97213f4bbc62384278f8f47732c1b7fba5f83586ccb810667648f5f250657746",
   "app/report.py": "e9bc69a5773a4f81d32e4733a006e9c19717efd22972646ae16a4487b59f584b",
   "app/templates/alert_ok.png": "0cf6fb6e78ed0f106d65072a8eeb3ec3bab74eff9009767e38621a0dced2ccb5",
@@ -27,22 +27,26 @@
   "app/templates/main_title.png": "e40766faa606cb7a2cd3103e7e3bada1b5b7abbf56ccd532f159c1cc998867aa",
   "app/templates/menu_continue.png": "58983ca9a6f84d7ad12bbe2e267630cd7d3071c43df5fa47ea95a0c3bd40c12c",
   "app/templates/menu_sim.png": "6c85312aa240af435567b5aa360abf5b8c29bb0933d9dc454f23bba3a8ed3fc0",
-  "app/templates/meta.json": "58ced4abb70123133a82a39626ab50ae4c4cc5c1cfc799a68c0a38a124cb3364",
+  "app/templates/meta.json": "6c9098e79640584e3619467fded491b55c082f6b5c5e0f4b3bd97ad0ca8b659b",
   "app/templates/mvp_next.png": "631d5bfa30c7962f1afa3a83e54ea40a74cedd1492e2aaed9066dd2a11661b88",
   "app/templates/mvp_title.png": "ad569a7b8874831fc0565c183185666bec66499d3c14d8424658616d39a5efe5",
   "app/templates/outs.png": "522fcc3b647be7226454714832af5b8248b96980f989d92ddcd0688196e173dd",
   "app/templates/pause_btn.png": "5af881898495aaaac7314682cf30ab499a9e83e5ccb73ed13b062d9d86bd47ef",
   "app/templates/pitch_off.png": "f596b1d289e50e2617d02b4c02485b14924ea30edc953dc1d2e02914d779b0aa",
   "app/templates/pitch_on.png": "69e793a886035877bfe366d812860311dc3aef957d46cc8a29b6106ed6b973f2",
+  "app/templates/rc_cont_popup.png": "a23abaeb5a37ac143fe1fc1723b709c28b709b07c39f50e743798128c1961810",
+  "app/templates/rc_lobby.png": "b8452113c6e9a0d2b8e0ed75990c561cad5255e45014e79906d4d6f2ab12390d",
+  "app/templates/rc_refresh_popup.png": "0f806acfdbab746fea85f4a2e2e11487e6610b2115745509f7cf0eaa9824fda2",
+  "app/templates/rc_series_result.png": "0a4141c30566ab1d4f8e3acfe4ee112856e32d30421849c1c497d65485f94f24",
   "app/templates/result_next.png": "96c35faaa76c58281948c09e3d6fe73f04919b3dbf627757cbd0ef5773296ae0",
   "app/templates/result_title.png": "af48c5889af1dbc366a91291d25b92db804fbbfd730ae634bf5116adf991ae7f",
   "app/templates/round_again.png": "3dc666276f26f58b7860c5187bc7591eaa95bcd51cde65ae861afef8f28cd17b",
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "6d9cccbea3ed6edecd9e6e23c1720b1ce213358152e312c6a5380fe7d1b56c8e",
-  "app/version.py": "ca931b51b3f361c6a54a6153c282d7c15c805b22da2f77d08d85e1da14807e31",
-  "app/vision.py": "cd6b1eb0e48d9a464af447373d59e8b6eac0884328a8c33e2c0c80de5c9f76a6",
+  "app/version.py": "2a254d0a7a52785fdd24906c89fb66eed630de930f5582e2af09599fc75a16e4",
+  "app/vision.py": "dac91b9bc113379b0a21d02c53f1d15d746286e0305f23356e017db7c0df2153",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
-  "사용법.txt": "06165a82beb7641bf6d28377c6ae026d056af632fd80d402c66993f78a787885"
+  "사용법.txt": "b4ed6f5187e4b7948449e2e3ed27f034f08ff44fd111ced761ae22ca9cb0e576"
  }
 }
