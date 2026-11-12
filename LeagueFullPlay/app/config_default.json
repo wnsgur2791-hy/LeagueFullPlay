@@ -22,5 +22,15 @@
   "gauge_yellow_min_px": 60,
   "auto_update": true,
   "thresholds": {},
-  "report_name": ""
+  "report_name": "",
+  "rc_week": [
+    "point",
+    "point",
+    "point",
+    "point",
+    "star",
+    "star",
+    "star"
+  ],
+  "rc_series_timeout_sec": 900
 }

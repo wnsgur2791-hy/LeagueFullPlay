@@ -215,12 +215,166 @@ class Brain:
                 logs.append("일시정지")
 
 
+class RcBrain:
+    """랭킹챌린지 간편 매크로: 로비 → 연속 경기 → 결과 확인 → 갱신 → 반복 (선발 배치는 건드리지 않음)
+
+    갱신 방식(kind): 'point' = 무료·포인트 갱신까지 / 'star' = 스타 갱신까지 전부
+    멈추는 때
+      · 포갱: 새 상대 목록인데 다음 갱신이 스타 → 이 5경기는 치르지 않고 남겨 둠
+      · 스갱: 새 상대 목록인데 '금일 갱신 완료' → 이 5경기는 남겨 둠
+      · 자정(날짜가 바뀜)이 되면: 진행 중인 연속 경기는 끝까지 보고, 로비로 오면 멈춤
+    절대 누르지 않는 것: 포갱에서 스타 결제, [연속 경기 종료], 구매
+    """
+    KIND_NAME = {"free": "무료", "point": "포인트", "star": "스타", "done": "금일 갱신 완료"}
+
+    def __init__(self, cfg, today=None):
+        self.cfg = cfg
+        self.today = today or datetime.now().date()
+        self.kind = rc_kind_for(cfg, self.today)
+        self.games_done = 0        # 끝낸 연속 경기 수 (화면의 '완료' 칸)
+        self.sim_switches = 0      # 갱신 횟수 (화면의 두 번째 칸)
+        self.last_action = {}
+        self.series_since = None   # 연속 경기 진행 시작 시각
+        self.after_series = None   # 결과 확인을 누른 시각 (승급 화면 등 넘기기)
+        self.after_taps = 0
+        self.started_logged = False
+        self.last_free_tap = None
+
+    _ready = Brain._ready
+
+    def _p(self, name):
+        return tuple(RC_POINTS[name])
+
+    def step(self, info, now, today=None):
+        cfg = self.cfg
+        taps, logs = [], []
+        stop = None
+        if not self.started_logged:
+            self.started_logged = True
+            logs.append(f"랭챌 매크로: {'스갱(스타 갱신까지)' if self.kind == 'star' else '포갱(포인트 갱신까지)'}")
+        midnight = (today or datetime.now().date()) != self.today
+
+        def has(name):
+            return info.get(name, (False,))[0]
+
+        if has("rc_refresh_popup"):
+            screen = "즉시 갱신 창"
+            pk = info.get("_rc_popup_kind") or "point"
+            if midnight or (pk == "star" and self.kind != "star"):
+                if self._ready("rc_close", now, 3.0):
+                    taps.append(self._p("refresh_close"))
+                    stop = ("자정이 되어 갱신하지 않고 멈췄어요." if midnight else
+                            "즉시 갱신 창에 스타가 표시돼서 누르지 않고 멈췄어요. (포갱 모드)")
+            elif self._ready("rc_pay", now, 4.0):
+                taps.append(self._p("refresh_pay"))
+                if self.last_free_tap and now - self.last_free_tap < 15:
+                    logs.append(f"(무료 갱신으로 보였는데 결제 창이 떴어요) {self.KIND_NAME[pk]} 갱신 결제")
+                else:
+                    self.sim_switches += 1
+                    logs.append(f"{self.KIND_NAME[pk]} 갱신 결제 ({self.sim_switches}번째 갱신)")
+                self.last_free_tap = None
+        elif has("rc_series_result"):
+            screen = "연속 경기 결과"
+            if self._ready("rc_ok", now, 3.0):
+                taps.append(self._p("series_ok"))
+                if self.series_since is not None:
+                    self.games_done += 1
+                    logs.append(f"연속 경기 끝 ({(now - self.series_since) / 60:.1f}분) → 확인 "
+                                f"({self.games_done}번째)")
+                self.series_since = None
+                self.after_series = now
+                self.after_taps = 0
+        elif has("rc_cont_popup"):
+            screen = "연속 경기 창"
+            if info.get("_rc_go_blue") is False:
+                stop = "연속 경기 창의 [경기 진행] 버튼이 눌리지 않는 상태라 멈췄어요."
+            elif self._ready("rc_go", now, 4.0):
+                taps.append(self._p("cont_go"))
+                self.series_since = now
+                logs.append("경기 진행 → 연속 경기 진행 중 (보통 5분)")
+        elif has("rc_lobby"):
+            screen = "랭챌 로비"
+            self.after_series = None
+            rows = info.get("_rc_rows") or [False] * 5
+            kind = info.get("_rc_kind") or "free"
+            all_played, none_played = all(rows), not any(rows)
+            blocked = kind == "done" or (kind == "star" and self.kind != "star")
+            limit = int(cfg.get("max_games", 0) or 0)
+            if midnight:
+                stop = "자정이 되어 멈췄어요."
+            elif limit and self.games_done >= limit:
+                stop = f"설정한 연속 경기 {limit}번을 모두 진행했어요."
+            elif not all_played:
+                if none_played and blocked:
+                    stop = ("오늘 갱신을 모두 써서(금일 갱신 완료) 지금 5경기는 남겨 두고 멈췄어요."
+                            if kind == "done" else
+                            "다음 갱신이 스타라서 지금 5경기는 남겨 두고 멈췄어요. (포갱 모드)")
+                elif self._ready("rc_cont", now, 5.0):
+                    taps.append(self._p("cont_btn"))
+                    logs.append(f"남은 경기 {rows.count(False)}개 → 연속 경기")
+            else:
+                if kind == "done":
+                    stop = "오늘 갱신을 모두 썼어요 (금일 갱신 완료)."
+                elif kind == "star" and self.kind != "star":
+                    stop = "다음 갱신이 스타라서 멈췄어요. (포갱 모드)"
+                elif self._ready("rc_refresh", now, 6.0):
+                    taps.append(self._p("refresh_btn"))
+                    if kind == "free":
+                        self.sim_switches += 1
+                        self.last_free_tap = now
+                        logs.append(f"5경기 완료 → 무료 갱신 ({self.sim_switches}번째 갱신)")
+                    else:
+                        logs.append(f"5경기 완료 → {self.KIND_NAME[kind]} 갱신 버튼")
+        else:
+            if self.series_since is not None:
+                screen = "연속 경기 진행 중"
+                if now - self.series_since > cfg.get("rc_series_timeout_sec", 900):
+                    stop = "연속 경기가 15분 안에 끝나지 않아서 멈췄어요."
+            elif self.after_series is not None and now - self.after_series < 30:
+                screen = "연속 경기 뒤 화면"
+                # 승급 화면 등: 화면 가운데를 눌러 넘김 (랭챌분석기와 같은 방식)
+                if self.after_taps < 5 and self._ready("rc_center", now, 3.0):
+                    taps.append(self._p("center"))
+                    self.after_taps += 1
+                    logs.append("로비가 아닌 화면 → 화면 가운데를 눌러 넘겨요 (승급 화면일 수 있어요)")
+            else:
+                # 연속 경기 도중에 시작한 경우 등: 진행 중인 연속 경기로 보고 기다림 (최대 15분)
+                self.series_since = now
+                screen = "연속 경기 진행 중"
+                logs.append("로비가 아닌 화면 → 진행 중인 연속 경기로 보고 기다려요")
+        # 랭챌은 연속 경기 중 [연속 경기 종료]가 눌리면 안 돼서 빈 곳 탭을 하지 않음
+        return screen, taps, logs, None, stop
+
+
+RC_POINTS = {}
+WEEK = ["월", "화", "수", "목", "금", "토", "일"]
+
+
+def rc_kind_for(cfg, day):
+    """모드와 요일로 오늘의 갱신 방식 ('point' / 'star')"""
+    mode = cfg.get("mode")
+    if mode == "rc_star":
+        return "star"
+    if mode == "rc_custom":
+        week = cfg.get("rc_week") or ["point"] * 7
+        return "star" if week[day.weekday()] == "star" else "point"
+    return "point"
+
+
+def make_brain(cfg, vision=None):
+    if vision is not None and vision.rc:
+        RC_POINTS.update(vision.rc.get("points", {}))
+    if str(cfg.get("mode", "")).startswith("rc_"):
+        return RcBrain(cfg)
+    return Brain(cfg)
+
+
 class Bot(threading.Thread):
     def __init__(self, adb, vision, cfg, on_log, on_status, on_stop):
         super().__init__(daemon=True)
         self.adb, self.vision, self.cfg = adb, vision, cfg
         self.on_log, self.on_status, self.on_stop = on_log, on_status, on_stop
-        self.brain = Brain(cfg)
+        self.brain = make_brain(cfg, vision)
         self._stop_evt = threading.Event()
         self.last_frame = None
 
@@ -272,13 +426,13 @@ class Bot(threading.Thread):
                               f"(볼 소진·리그 종료·새 팝업일 수 있음) 화면 저장: {path}")
                     break
 
-                if stop:
-                    reason = stop
-                    break
-
                 for pt in taps:
                     x, y = self.to_device(pt, sx, sy)
                     self.adb.tap(x, y)
+
+                if stop:
+                    reason = stop
+                    break
 
                 # 컷씬 스킵용 빈 곳 탭
                 if not taps and neutral and now - last_neutral >= cfg["neutral_tap_interval_sec"]:

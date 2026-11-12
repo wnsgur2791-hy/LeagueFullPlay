@@ -19,7 +19,7 @@ sys.path.insert(0, APP_DIR)
 import report  # noqa: E402
 import updater  # noqa: E402
 from adb_client import Adb, AdbError  # noqa: E402
-from bot import Bot, Brain, save_capture  # noqa: E402
+from bot import WEEK, Bot, make_brain, rc_kind_for, save_capture  # noqa: E402
 from version import REPO, VERSION  # noqa: E402
 from vision import Vision  # noqa: E402
 
@@ -52,6 +52,10 @@ TEMPLATE_NAMES = {
     "mvp_title": "반복과제 보상 제목",
     "mvp_next": "반복과제 보상 다음 버튼",
     "round_again": "한 번 더 하기 버튼",
+    "rc_lobby": "랭챌 로비",
+    "rc_cont_popup": "랭챌 연속 경기 창",
+    "rc_refresh_popup": "랭챌 즉시 갱신 창",
+    "rc_series_result": "랭챌 연속 경기 결과",
 }
 USER_CONFIG = os.path.join(ROOT_DIR, "config.json")
 
@@ -121,18 +125,40 @@ class App:
         for b in (self.btn_connect, self.btn_start, self.btn_stop, self.btn_save, self.btn_test, self.btn_report):
             b.pack(side="left", padx=3)
 
-        modef = ttk.Frame(main)
+        modef = ttk.LabelFrame(main, text="무엇을 돌릴까요?")
         modef.pack(fill="x", **pad)
-        ttk.Label(modef, text="플레이 방식:").pack(side="left")
         self.mode_var = tk.StringVar(value=self.cfg.get("mode", "full"))
-        ttk.Radiobutton(modef, text="풀플레이", value="full", variable=self.mode_var,
-                        command=self.change_mode).pack(side="left", padx=6)
-        ttk.Radiobutton(modef, text="하이라이트", value="highlight", variable=self.mode_var,
-                        command=self.change_mode).pack(side="left", padx=6)
+        r1 = ttk.Frame(modef)
+        r1.pack(fill="x", padx=6, pady=2)
+        ttk.Label(r1, text="리그 모드", width=10).pack(side="left")
+        for text, val in (("풀플레이", "full"), ("하이라이트", "highlight")):
+            ttk.Radiobutton(r1, text=text, value=val, variable=self.mode_var,
+                            command=self.change_mode).pack(side="left", padx=6)
+        r2 = ttk.Frame(modef)
+        r2.pack(fill="x", padx=6, pady=2)
+        ttk.Label(r2, text="랭킹챌린지", width=10).pack(side="left")
+        for text, val in (("포갱", "rc_point"), ("스갱", "rc_star"), ("사용자 지정 (요일별)", "rc_custom")):
+            ttk.Radiobutton(r2, text=text, value=val, variable=self.mode_var,
+                            command=self.change_mode).pack(side="left", padx=6)
+        r3 = ttk.Frame(modef)
+        r3.pack(fill="x", padx=6, pady=(2, 6))
+        ttk.Label(r3, text="요일별 갱신", width=10).pack(side="left")
+        week = list(self.cfg.get("rc_week") or ["point"] * 7)
+        self.week_vars = []
+        for i, day in enumerate(WEEK):
+            ttk.Label(r3, text=day).pack(side="left", padx=(4, 1))
+            v = tk.StringVar(value="스갱" if week[i] == "star" else "포갱")
+            cb = ttk.Combobox(r3, textvariable=v, values=("포갱", "스갱"), width=4, state="readonly")
+            cb.pack(side="left")
+            cb.bind("<<ComboboxSelected>>", lambda e: self.change_week())
+            self.week_vars.append(v)
+        self.today_var = tk.StringVar()
+        ttk.Label(r3, textvariable=self.today_var, foreground="#1a6fb0").pack(side="left", padx=8)
+        self.update_today_label()
 
         opt = ttk.Frame(main)
         opt.pack(fill="x", **pad)
-        ttk.Label(opt, text="최대 경기 수 (0 = 무제한):").pack(side="left")
+        ttk.Label(opt, text="최대 경기 수 (랭챌은 연속 경기 수, 0 = 무제한):").pack(side="left")
         self.max_var = tk.StringVar(value=str(self.cfg.get("max_games", 0)))
         ttk.Spinbox(opt, from_=0, to=144, width=6, textvariable=self.max_var).pack(side="left", padx=6)
         self.auto_upd_var = tk.BooleanVar(value=self.cfg.get("auto_update", True))
@@ -147,10 +173,12 @@ class App:
         self.games_var = tk.StringVar(value="0")
         self.sim_var = tk.StringVar(value="0")
         self.time_var = tk.StringVar(value="00:00:00")
-        rows = [("현재 화면", self.screen_var), ("완료한 경기", self.games_var),
-                ("시뮬레이션 전환", self.sim_var), ("실행 시간", self.time_var)]
+        self.games_label = tk.StringVar(value="완료한 경기")
+        self.sim_label = tk.StringVar(value="시뮬레이션 전환")
+        rows = [(tk.StringVar(value="현재 화면"), self.screen_var), (self.games_label, self.games_var),
+                (self.sim_label, self.sim_var), (tk.StringVar(value="실행 시간"), self.time_var)]
         for i, (k, v) in enumerate(rows):
-            ttk.Label(stat, text=k).grid(row=i, column=0, sticky="w", padx=8, pady=2)
+            ttk.Label(stat, textvariable=k).grid(row=i, column=0, sticky="w", padx=8, pady=2)
             ttk.Label(stat, textvariable=v).grid(row=i, column=1, sticky="w", padx=8, pady=2)
 
         logf = ttk.LabelFrame(main, text="로그")
@@ -397,11 +425,32 @@ class App:
             for line in str(m.get("notes") or "").splitlines():
                 self.log(f"  {line}")
 
+    def mode_name(self, mode=None):
+        mode = mode or self.cfg.get("mode", "full")
+        if mode == "rc_custom":
+            k = rc_kind_for(self.cfg, datetime.now().date())
+            return f"랭챌 사용자 지정 (오늘은 {'스갱' if k == 'star' else '포갱'})"
+        return {"full": "리그 풀플레이", "highlight": "리그 하이라이트",
+                "rc_point": "랭챌 포갱", "rc_star": "랭챌 스갱"}.get(mode, mode)
+
     def change_mode(self):
         self.cfg["mode"] = self.mode_var.get()
         save_config(self.cfg)
-        name = "하이라이트" if self.cfg["mode"] == "highlight" else "풀플레이"
-        self.log(f"플레이 방식: {name} (리그 메인/플레이 방식 선택 화면에서 이 방식으로 들어가요)")
+        self.update_today_label()
+        where = ("랭킹챌린지 로비에서 [▶ 시작]을 누르세요" if self.cfg["mode"].startswith("rc_")
+                 else "리그 메인/플레이 방식 선택 화면이나 경기 중에 [▶ 시작]을 누르세요")
+        self.log(f"선택: {self.mode_name()} ({where})")
+
+    def change_week(self):
+        self.cfg["rc_week"] = ["star" if v.get() == "스갱" else "point" for v in self.week_vars]
+        save_config(self.cfg)
+        self.update_today_label()
+        self.log("요일별 갱신: " + " ".join(f"{d}{v.get()[0]}" for d, v in zip(WEEK, self.week_vars)))
+
+    def update_today_label(self):
+        day = datetime.now().date()
+        k = rc_kind_for(dict(self.cfg, mode="rc_custom"), day)
+        self.today_var.set(f"오늘({WEEK[day.weekday()]}): {'스갱' if k == 'star' else '포갱'}")
 
     def toggle_auto_update(self):
         self.cfg["auto_update"] = bool(self.auto_upd_var.get())
@@ -521,7 +570,10 @@ class App:
             self.cfg["max_games"] = 0
         self.cfg["mode"] = self.mode_var.get()
         save_config(self.cfg)
-        self.log("플레이 방식: " + ("하이라이트" if self.cfg["mode"] == "highlight" else "풀플레이"))
+        rc = self.cfg["mode"].startswith("rc_")
+        self.games_label.set("끝낸 연속 경기" if rc else "완료한 경기")
+        self.sim_label.set("갱신 횟수" if rc else "시뮬레이션 전환")
+        self.log("시작: " + self.mode_name())
         self.bot = Bot(self.adb, self.vision, self.cfg,
                        on_log=lambda m: self.q.put(("log", m)),
                        on_status=lambda *a: self.q.put(("status", a)),
@@ -575,7 +627,7 @@ class App:
             return
         norm, _, _ = Vision.normalize(frame)
         info = self.vision.analyze(norm)
-        brain = Brain(self.cfg)
+        brain = make_brain(self.cfg, self.vision)
         screen, taps, _logs, _n, _s = brain.step(info, time.time())
         self.log(f"── 인식 테스트: '{screen}' 으로 판단 (누를 위치 {taps or '없음'}) ──")
         parts = []

@@ -31,6 +31,7 @@ class Vision:
             meta = json.load(f)
         self.check_box = meta.pop("_gauge_135_check_box")
         self.select_cards = meta.pop("_select_cards", {})
+        self.rc = meta.pop("_rc", {})
         self.templates = {}
         for name, info in meta.items():
             img = imread_any(os.path.join(template_dir, name + ".png"))
@@ -115,6 +116,56 @@ class Vision:
                 best, best_n = name, n
         return best if best_n >= 300 else None
 
+    # ---------- 랭킹챌린지 (랭챌분석기와 같은 판정, 768x1366 기준으로 옮김) ----------
+    @staticmethod
+    def _rgb(norm, box):
+        x1, y1, x2, y2 = box
+        a = norm[y1:y2, x1:x2].astype(np.int32)
+        return a[..., 2], a[..., 1], a[..., 0]          # r, g, b
+
+    def rc_refresh_kind(self, norm):
+        """로비 갱신 버튼: 'free'(무료 n/3) / 'point'(P) / 'star'(스타) / 'done'(금일 갱신 완료)"""
+        r, g, b = self._rgb(norm, self.rc["refresh_box"])
+        mn = np.minimum(np.minimum(r, g), b)
+        white = float((mn > 215).mean())
+        gray = float(((mn > 160) & (mn < 205)).mean())
+        if white < 0.15 and gray > 0.35:
+            return "done"
+        r, g, b = self._rgb(norm, self.rc["free_box"])
+        mx = np.maximum(np.maximum(r, g), b)
+        mn = np.minimum(np.minimum(r, g), b)
+        if float(((mx - mn < 20) & (mx > 100) & (mx < 170)).mean()) > 0.4:
+            return "free"
+        r, g, b = self._rgb(norm, self.rc["refresh_icon_box"])
+        yellow = int(((r > 200) & (g > 150) & (b < 90)).sum())
+        blue = int(((b > 110) & (b > r + 40) & (r < 110)).sum())
+        if yellow > 28:
+            return "star"
+        if blue > 42:
+            return "point"
+        return "free"
+
+    def rc_popup_kind(self, norm):
+        """즉시 갱신 창 결제 버튼에 스타(노란색)가 있으면 'star', 아니면 'point'"""
+        r, g, b = self._rgb(norm, self.rc["refresh_pay_box"])
+        return "star" if int(((r > 200) & (g > 150) & (b < 90)).sum()) > 28 else "point"
+
+    def rc_cont_go_blue(self, norm):
+        """연속 경기 창의 [경기 진행] 버튼이 파란색(누를 수 있음)인지"""
+        r, g, b = self._rgb(norm, self.rc["cont_go_box"])
+        return float(((b > 180) & (r < 60) & (g > 40) & (g < 140)).mean()) > 0.2
+
+    def rc_rows(self, norm):
+        """로비 5줄: 각 줄이 '치름'(True) / '안 치름'(False).
+        안 치른 줄에는 밝은 PLAY BALL 버튼, 치른 줄에는 어두운 바탕의 승/패 결과가 있음"""
+        th = self.rc.get("playball_bright", 0.35)
+        out = []
+        for row in self.rc["rows"]:
+            r, g, b = self._rgb(norm, row["playball"])
+            bright = float((np.minimum(np.minimum(r, g), b) > 190).mean())
+            out.append(bright < th)
+        return out
+
     def analyze(self, norm):
         """화면에서 필요한 모든 정보를 한 번에 계산"""
         info = {}
@@ -123,4 +174,12 @@ class Vision:
             info[name] = (ok, score, pt)
         info["_yellow135"] = self.gauge_135_yellow(norm)
         info["_selected"] = self.selected_card(norm) if info.get("select_title", (False,))[0] else None
+        if self.rc:
+            lobby = info.get("rc_lobby", (False,))[0]
+            info["_rc_kind"] = self.rc_refresh_kind(norm) if lobby else None
+            info["_rc_rows"] = self.rc_rows(norm) if lobby else None
+            info["_rc_popup_kind"] = (self.rc_popup_kind(norm)
+                                      if info.get("rc_refresh_popup", (False,))[0] else None)
+            info["_rc_go_blue"] = (self.rc_cont_go_blue(norm)
+                                   if info.get("rc_cont_popup", (False,))[0] else None)
         return info
