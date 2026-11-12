@@ -1,16 +1,14 @@
 {
- "version": "1.2.0",
- "ref": "1e7e2d0af8e7f83b1aa2fc50d840fba1f3c93b76",
+ "version": "1.2.1",
+ "ref": "e62c9f6c819b580cd3b336b04c130ef3fcc8954a",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "하이라이트 매크로 추가 (창 위쪽에서 풀플레이/하이라이트 선택)",
-  "리그 메인 → PLAY BALL → 방식 선택 → START 까지 자동으로 진행",
-  "하이라이트: 시작하자마자 시뮬레이션 전환, 직접 플레이 화면은 건너 뛰기"
+  "시뮬레이션 전환 알림창에서 확인을 누르지 않고 멈추던 문제 수정"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
   "app/app.py": "0ddc81705024b735857e79bb1d17e3809c90126fb8f660f289db91c5d0d23960",
-  "app/bot.py": "1a24b65a45e5d403b9cc5737ffd548034452ae759391f512094e275ce063aa21",
+  "app/bot.py": "e0f559204384b1b533ee24e318baad5cab194e3a39550e8215442f41dcc1a425",
   "app/config_default.json": "a14b1fe48c6e27449aebbbba5193c55b82a77d84744c985ee8768567017779c9",
   "app/launcher.py": "fdecfd62d2586eff6669a9a2a5348f168ddd515bd2851290928f7c94d1910410",
   "app/templates/alert_ok.png": "0cf6fb6e78ed0f106d65072a8eeb3ec3bab74eff9009767e38621a0dced2ccb5",
@@ -40,7 +38,7 @@
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "4fb8311251dadcbd5ffb835967d7e9a76b4af152c0ea288b9481976b00cc417c",
-  "app/version.py": "3224a60cc3242a7699dba946c1f5a7c9c07e7ff91e806e2d2e6e84aecc174af0",
+  "app/version.py": "d7a06d32eb997f9931d5d9b347be4c6831ff34245fbfb75bec50e20588e9108a",
   "app/vision.py": "3d8c3f11eb14edf11ffa4de64cc7415514d11ca0ae17e5d38d4466120268778a",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
   "사용법.txt": "7e57e9347241ec28ee19419e2ecc26dc2a81b14d266300cf92b02a47922630f7"
