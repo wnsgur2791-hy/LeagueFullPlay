@@ -1,17 +1,17 @@
 {
- "version": "1.1.0",
- "ref": "8d635878132609cb70b3ab281c4321773bea0f47",
+ "version": "1.2.0",
+ "ref": "1e7e2d0af8e7f83b1aa2fc50d840fba1f3c93b76",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "자동 업데이트 추가 (켤 때 새 버전을 확인해서 바뀐 파일만 받아 적용)",
-  "adb.exe를 못 찾으면 직접 고를 수 있게",
-  "설정은 바꾼 값만 config.json에 저장"
+  "하이라이트 매크로 추가 (창 위쪽에서 풀플레이/하이라이트 선택)",
+  "리그 메인 → PLAY BALL → 방식 선택 → START 까지 자동으로 진행",
+  "하이라이트: 시작하자마자 시뮬레이션 전환, 직접 플레이 화면은 건너 뛰기"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "058b3873ad1ad9acb71b0740d06e92ebac2a79471f3d8217270224739929a1eb",
-  "app/bot.py": "955f69dc0b1cd22eb8fc397bb7e755c810a32eca937adca27f431184842a137c",
-  "app/config_default.json": "250d2f7f819d28370a844a1041dbfa7099088c9dc4bd6847a4db4a995065ac32",
+  "app/app.py": "0ddc81705024b735857e79bb1d17e3809c90126fb8f660f289db91c5d0d23960",
+  "app/bot.py": "1a24b65a45e5d403b9cc5737ffd548034452ae759391f512094e275ce063aa21",
+  "app/config_default.json": "a14b1fe48c6e27449aebbbba5193c55b82a77d84744c985ee8768567017779c9",
   "app/launcher.py": "fdecfd62d2586eff6669a9a2a5348f168ddd515bd2851290928f7c94d1910410",
   "app/templates/alert_ok.png": "0cf6fb6e78ed0f106d65072a8eeb3ec3bab74eff9009767e38621a0dced2ccb5",
   "app/templates/alert_sim.png": "f41cd9025b892656e10659c53534a7835a536c7e2fa53cfc93fc23f99f73ff4a",
@@ -19,9 +19,15 @@
   "app/templates/coach_replace.png": "fa65c5ce17428b7ef48918f18e47bd637ab78906c5dae7fc14c4429b0151393c",
   "app/templates/coach_title.png": "1d37ab186b735887e65ec3856217d16ea967faa9bd2c2039d778d2d540f20dc4",
   "app/templates/gauge_zero.png": "4c24aa0c455ad616eb334c74484583d139e0651c1708d87a736944c1b9baf316",
+  "app/templates/hl_pause.png": "047f8fc233566992a8529408b7071144b402c4f3812f5c43a6c64dbd0ec0c216",
+  "app/templates/hl_skip.png": "c2e37f8b8e30bc6cafed718d5dd55d3c4e3f3e34f4e47b0a0b90f654bd5cb57c",
+  "app/templates/hl_title.png": "2daa7ecc1ab1c6acdc01ee5c2e4fa3df0f5740b62e534791660910dec7f83990",
+  "app/templates/hl_view.png": "3fbea4e7d321b7e5938b806591f0e6860ed8371c9092f2df0f5badf0d4b71481",
+  "app/templates/main_playball.png": "3252b3fc26d6da79e43c5290aab194774ba018ef81141fffa24b4d673079a494",
+  "app/templates/main_title.png": "e40766faa606cb7a2cd3103e7e3bada1b5b7abbf56ccd532f159c1cc998867aa",
   "app/templates/menu_continue.png": "58983ca9a6f84d7ad12bbe2e267630cd7d3071c43df5fa47ea95a0c3bd40c12c",
   "app/templates/menu_sim.png": "6c85312aa240af435567b5aa360abf5b8c29bb0933d9dc454f23bba3a8ed3fc0",
-  "app/templates/meta.json": "45b8e3a7a2d4bdf045ccdb98e86004a3d06270cb9dba0c8798af5a583e6d34a8",
+  "app/templates/meta.json": "4e5132f0356a4c495fcfed38e27d12fcb40970b7514112800405a4a5c15d0bb7",
   "app/templates/mvp_next.png": "631d5bfa30c7962f1afa3a83e54ea40a74cedd1492e2aaed9066dd2a11661b88",
   "app/templates/mvp_title.png": "ad569a7b8874831fc0565c183185666bec66499d3c14d8424658616d39a5efe5",
   "app/templates/outs.png": "522fcc3b647be7226454714832af5b8248b96980f989d92ddcd0688196e173dd",
@@ -31,10 +37,12 @@
   "app/templates/result_next.png": "96c35faaa76c58281948c09e3d6fe73f04919b3dbf627757cbd0ef5773296ae0",
   "app/templates/result_title.png": "af48c5889af1dbc366a91291d25b92db804fbbfd730ae634bf5116adf991ae7f",
   "app/templates/round_again.png": "3dc666276f26f58b7860c5187bc7591eaa95bcd51cde65ae861afef8f28cd17b",
+  "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
+  "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "4fb8311251dadcbd5ffb835967d7e9a76b4af152c0ea288b9481976b00cc417c",
-  "app/version.py": "0c8d4bd0b351d384df23bbb60ab649d102e35e1b2065a0f033283edaaad28fb2",
-  "app/vision.py": "fd0f48a746259906120c7c6858235bd11a7fbb423ceaf11a5c0307dbf8f134ca",
+  "app/version.py": "3224a60cc3242a7699dba946c1f5a7c9c07e7ff91e806e2d2e6e84aecc174af0",
+  "app/vision.py": "3d8c3f11eb14edf11ffa4de64cc7415514d11ca0ae17e5d38d4466120268778a",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
-  "사용법.txt": "ae304fe2189abf6fc3751badb23ae0f5748748ad7dcd54991f41e2414301dceb"
+  "사용법.txt": "7e57e9347241ec28ee19419e2ecc26dc2a81b14d266300cf92b02a47922630f7"
  }
 }
