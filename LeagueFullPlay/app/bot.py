@@ -3,6 +3,7 @@
 Brain: 화면 인식 결과를 보고 무엇을 누를지 결정 (ADB와 분리되어 있어 테스트 가능)
 Bot:   ADB로 캡처 -> Brain 판단 -> 탭, 을 반복하는 작업 스레드
 """
+import gc
 import os
 import threading
 import time
@@ -68,7 +69,8 @@ class Brain:
         def has(name):
             return info[name][0]
 
-        if has("alert_sim"):
+        alert = has("alert_sim") or (has("alert_ok") and (has("menu_sim") or has("menu_continue")))
+        if alert:
             screen = "알림(시뮬레이션 전환)"
             # 우리가 전환하려던 경기면 확인 (이미 전환됐다고 기록돼 있어도 창이 떠 있으면 누름)
             if self.need_sim and self._ready("alert_ok", now, cd):
@@ -427,10 +429,22 @@ class Bot(threading.Thread):
                     time.sleep(2)
                     continue
                 self.last_frame = frame
-                norm, sx, sy = Vision.normalize(frame)
-                info = self.vision.analyze(norm)
-                now = time.time()
-                screen, taps, logs, neutral, stop = self.brain.step(info, now)
+                try:
+                    norm, sx, sy = Vision.normalize(frame)
+                    info = self.vision.analyze(norm)
+                    now = time.time()
+                    screen, taps, logs, neutral, stop = self.brain.step(info, now)
+                    errors = 0
+                except Exception as e:   # 메모리 부족 같은 일시적 오류는 잠깐 쉬고 다시
+                    errors += 1
+                    self.on_log(f"화면 분석 오류({errors}/5): {e}")
+                    frame = norm = info = None
+                    gc.collect()
+                    if errors >= 5:
+                        reason = f"화면 분석 오류가 계속돼서 멈췄습니다: {e}"
+                        break
+                    self._stop_evt.wait(3)
+                    continue
 
                 for l in logs:
                     self.on_log(l)

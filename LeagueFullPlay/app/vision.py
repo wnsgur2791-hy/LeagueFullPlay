@@ -11,7 +11,7 @@ import numpy as np
 
 NORM_W = 768
 NORM_H = 1366
-SCALES = (1.0, 0.96, 1.04)
+SCALES = (1.0, 0.98, 1.02, 0.96, 1.04)   # 작은 해상도(540x960 등)에서는 글자 크기가 조금씩 달라서 촘촘하게
 
 
 def imread_any(path):

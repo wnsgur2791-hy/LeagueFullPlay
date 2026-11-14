@@ -487,6 +487,8 @@ class App:
         line = f"[{datetime.now():%H:%M:%S}] {msg}"
         self.log_box.configure(state="normal")
         self.log_box.insert("end", line + "\n")
+        if int(self.log_box.index("end-1c").split(".")[0]) > 1500:   # 오래 돌려도 메모리가 쌓이지 않게
+            self.log_box.delete("1.0", "500.0")
         self.log_box.see("end")
         self.log_box.configure(state="disabled")
         try:
