@@ -1,14 +1,16 @@
 {
- "version": "1.4.2",
- "ref": "85db7c268125d1089485c23494b550322366c21d",
+ "version": "1.4.3",
+ "ref": "e3482170e79e89b5c60963d381017b36c8eb14f3",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "랭챌 포갱/스갱 선택을 없애고 요일별 갱신만 남김 (예전에 포갱/스갱을 골라 둔 경우 요일별 갱신으로 바뀜)"
+  "작은 해상도(540x960 등)에서 시뮬레이션 전환 알림창의 확인을 못 누르던 문제 수정",
+  "화면 분석 중 일시적인 오류(메모리 부족 등)가 나도 바로 멈추지 않고 다시 시도",
+  "로그 창이 오래 돌려도 너무 길어지지 않게 정리"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "714ff90117e6d9e7429dbd37ce15c89893af12ebbb1cee94eac1420d98ca88f8",
-  "app/bot.py": "0bacb8e8b5a24a6b50c1050604d5852d514ce20af2c37ff49cc8e593eac232d6",
+  "app/app.py": "0c145a691f28f3e051ea3b2e6176a7259619e9206db86b69b76bb37fa9347969",
+  "app/bot.py": "2ace346b15f89f57f675ca2faffe9dbf9416889cdf7b8d7b49117318f2150d2e",
   "app/config_default.json": "5448b951dd86a3fd93e91af18cf4a0e80db7954a2cff5174c3f1e2bb52fba6c3",
   "app/launcher.py": "97213f4bbc62384278f8f47732c1b7fba5f83586ccb810667648f5f250657746",
   "app/report.py": "e9bc69a5773a4f81d32e4733a006e9c19717efd22972646ae16a4487b59f584b",
@@ -43,8 +45,8 @@
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
   "app/updater.py": "6d9cccbea3ed6edecd9e6e23c1720b1ce213358152e312c6a5380fe7d1b56c8e",
-  "app/version.py": "7ab1041b96808bf8f6d88e84ec6fd3de4393a44a4d775c21926340dead69791e",
-  "app/vision.py": "dac91b9bc113379b0a21d02c53f1d15d746286e0305f23356e017db7c0df2153",
+  "app/version.py": "7e7905021a0cc2b0994dcc1e0d9e4e6d217cbcc3835eb11d81dafdaf70919abb",
+  "app/vision.py": "2b244810c1261d43c16fe5870c8bce5a57b3d1a12e41adc12c6e1603ff41b153",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
   "사용법.txt": "a9b97ebb41e52383b63495b2f0f66fa39a805f4c3201749a22450c532ceaa904"
  }
