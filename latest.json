@@ -1,16 +1,14 @@
 {
- "version": "1.4.3",
- "ref": "e3482170e79e89b5c60963d381017b36c8eb14f3",
+ "version": "1.5.0",
+ "ref": "bef1c46742accd2e389cd81446a8948d745990f4",
  "prog_dir": "LeagueFullPlay",
  "notes": [
-  "작은 해상도(540x960 등)에서 시뮬레이션 전환 알림창의 확인을 못 누르던 문제 수정",
-  "화면 분석 중 일시적인 오류(메모리 부족 등)가 나도 바로 멈추지 않고 다시 시도",
-  "로그 창이 오래 돌려도 너무 길어지지 않게 정리"
+  "토너먼트 이벤트 매크로 추가: 빠른 진행으로 16강 → 결승 한 바퀴를 원하는 만큼 반복"
  ],
  "files": {
   "app/adb_client.py": "c0fc5763f55142a2de18fe7984a3fdf82735e7e60ace8589ba2e7756518a09bb",
-  "app/app.py": "0c145a691f28f3e051ea3b2e6176a7259619e9206db86b69b76bb37fa9347969",
-  "app/bot.py": "2ace346b15f89f57f675ca2faffe9dbf9416889cdf7b8d7b49117318f2150d2e",
+  "app/app.py": "4590f624b13f7a70afc64f87b4f50c0d353bbccffc5e2212cdaf24d2af37ef5a",
+  "app/bot.py": "756275cccfdd4af61ca1544d4d50ebcaca67438d444da8a661104f8d1f3b78b6",
   "app/config_default.json": "5448b951dd86a3fd93e91af18cf4a0e80db7954a2cff5174c3f1e2bb52fba6c3",
   "app/launcher.py": "97213f4bbc62384278f8f47732c1b7fba5f83586ccb810667648f5f250657746",
   "app/report.py": "e9bc69a5773a4f81d32e4733a006e9c19717efd22972646ae16a4487b59f584b",
@@ -28,7 +26,7 @@
   "app/templates/main_title.png": "e40766faa606cb7a2cd3103e7e3bada1b5b7abbf56ccd532f159c1cc998867aa",
   "app/templates/menu_continue.png": "58983ca9a6f84d7ad12bbe2e267630cd7d3071c43df5fa47ea95a0c3bd40c12c",
   "app/templates/menu_sim.png": "6c85312aa240af435567b5aa360abf5b8c29bb0933d9dc454f23bba3a8ed3fc0",
-  "app/templates/meta.json": "6c9098e79640584e3619467fded491b55c082f6b5c5e0f4b3bd97ad0ca8b659b",
+  "app/templates/meta.json": "5f088903902f3a2fb09641bdf019e2b2f2fa7f7b46aae6b33ebe061d1566e283",
   "app/templates/mvp_next.png": "631d5bfa30c7962f1afa3a83e54ea40a74cedd1492e2aaed9066dd2a11661b88",
   "app/templates/mvp_title.png": "ad569a7b8874831fc0565c183185666bec66499d3c14d8424658616d39a5efe5",
   "app/templates/outs.png": "522fcc3b647be7226454714832af5b8248b96980f989d92ddcd0688196e173dd",
@@ -44,10 +42,14 @@
   "app/templates/round_again.png": "3dc666276f26f58b7860c5187bc7591eaa95bcd51cde65ae861afef8f28cd17b",
   "app/templates/select_start.png": "9ca7fe53630864702fa2aef77389ff44ccde810856d74baf2745055c50d650b2",
   "app/templates/select_title.png": "86d07c0b607b5ec2fe06970426e1e84beaca9a94a401f3b11c913879754bc4c9",
+  "app/templates/tn_done.png": "42f150d302287cca0b5c29a01184b74eb22673f9fd6bc888e95fe85b58cd9083",
+  "app/templates/tn_playball.png": "798defd6e3ca1c3c71dd2d0696d8d1825a3b370a484b0096d90e08dfd61dd667",
+  "app/templates/tn_rewards.png": "9ad040001fb3947e909aca2cdc6d4e398d9202f78812abe2cef119ac999816be",
+  "app/templates/tn_win.png": "8de256bc86052458c914eb7bd0bb5740b0731b2f417cd0f05612a7382bc767b0",
   "app/updater.py": "6d9cccbea3ed6edecd9e6e23c1720b1ce213358152e312c6a5380fe7d1b56c8e",
-  "app/version.py": "7e7905021a0cc2b0994dcc1e0d9e4e6d217cbcc3835eb11d81dafdaf70919abb",
-  "app/vision.py": "2b244810c1261d43c16fe5870c8bce5a57b3d1a12e41adc12c6e1603ff41b153",
+  "app/version.py": "491536319061b6dd8a5cb158b7ab2bec2047032d7c24bf7006e011be6a92dd95",
+  "app/vision.py": "1d84c9d3bdcc43c2e34628cdab113bc7b185e187baa68d4da1c7fc58dd46bdb5",
   "requirements.txt": "bde984a7073014854a116de0a82ed437ed8ac9e9bd847ac189dbea70ae86cc43",
-  "사용법.txt": "a9b97ebb41e52383b63495b2f0f66fa39a805f4c3201749a22450c532ceaa904"
+  "사용법.txt": "77391c90046eaf6aef636c06cec1d72c841ed63559b4dcdb94a592786aab94d4"
  }
 }
