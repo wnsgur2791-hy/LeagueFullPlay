@@ -13,3 +13,4 @@
 - 저장소 루트 `config.json` 의 discord_webhook_b64 = [신고·건의]를 받는 디스코드 웹훅(base64). 바꾸면 즉시 반영 (app/report.py가 GitHub API→raw 순으로 읽음).
 - 고급 설정 탭: 템플릿별 일치도 덮어쓰기는 사용자 config.json 의 thresholds. 포수 리드는 meta.json 의 search 영역(아래쪽 절반 전체)에서 찾음.
 - 랭챌 매크로(v1.4.0~): bot.py RcBrain. 모드 rc_point/rc_star/rc_custom(요일표 rc_week). 템플릿 rc_* 와 meta.json `_rc`(버튼 좌표, 갱신 버튼 판정 영역, 로비 5줄 PLAY BALL 밝기 영역)는 랭챌분석기(918x1633)에서 옮겨 768x1366으로 맞춤. 로비 줄 판정: PLAY BALL 칸 밝은 픽셀 비율 ≥0.55 = 안 치름 (실측 0.85 / 치름 0.25). 랭챌은 빈 곳 탭 안 함.
+- 토너먼트 이벤트(v1.5.0~): bot.py TnBrain, 모드 "tournament". 템플릿 tn_playball/tn_rewards/tn_win/tn_done, meta.json `_tn`(좌표, 빠른 진행 카드 테두리 판정 영역, 보상 화면 왼쪽 버튼 색으로 결승 여부 판정). 선택 화면은 리그의 select_title/select_start 재사용. 최대 횟수 = 바퀴 수. 빈 곳 탭 안 함.

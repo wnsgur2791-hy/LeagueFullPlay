@@ -52,6 +52,10 @@ TEMPLATE_NAMES = {
     "mvp_title": "반복과제 보상 제목",
     "mvp_next": "반복과제 보상 다음 버튼",
     "round_again": "한 번 더 하기 버튼",
+    "tn_playball": "토너먼트 메인 PLAY BALL",
+    "tn_rewards": "토너먼트 보상 화면 (REWARDS)",
+    "tn_win": "토너먼트 우승 화면",
+    "tn_done": "토너먼트 '다음 화면으로' 버튼",
     "rc_lobby": "랭챌 로비",
     "rc_cont_popup": "랭챌 연속 경기 창",
     "rc_refresh_popup": "랭챌 즉시 갱신 창",
@@ -141,6 +145,11 @@ class App:
         ttk.Label(r2, text="랭킹챌린지", width=10).pack(side="left")
         ttk.Radiobutton(r2, text="요일별 갱신 (아래 표대로 포갱/스갱)", value="rc_custom", variable=self.mode_var,
                         command=self.change_mode).pack(side="left", padx=6)
+        r2b = ttk.Frame(modef)
+        r2b.pack(fill="x", padx=6, pady=2)
+        ttk.Label(r2b, text="이벤트", width=10).pack(side="left")
+        ttk.Radiobutton(r2b, text="토너먼트 (빠른 진행으로 16강~결승 반복)", value="tournament",
+                        variable=self.mode_var, command=self.change_mode).pack(side="left", padx=6)
         r3 = ttk.Frame(modef)
         r3.pack(fill="x", padx=6, pady=(2, 6))
         ttk.Label(r3, text="요일별 갱신", width=10).pack(side="left")
@@ -159,7 +168,7 @@ class App:
 
         opt = ttk.Frame(main)
         opt.pack(fill="x", **pad)
-        ttk.Label(opt, text="최대 경기 수 (랭챌은 연속 경기 수, 0 = 무제한):").pack(side="left")
+        ttk.Label(opt, text="최대 횟수 (리그 경기 / 랭챌 연속 경기 / 토너먼트 바퀴, 0 = 무제한):").pack(side="left")
         self.max_var = tk.StringVar(value=str(self.cfg.get("max_games", 0)))
         ttk.Spinbox(opt, from_=0, to=144, width=6, textvariable=self.max_var).pack(side="left", padx=6)
         self.auto_upd_var = tk.BooleanVar(value=self.cfg.get("auto_update", True))
@@ -431,15 +440,17 @@ class App:
         if mode == "rc_custom":
             k = rc_kind_for(self.cfg, datetime.now().date())
             return f"랭챌 요일별 갱신 (오늘은 {'스갱' if k == 'star' else '포갱'})"
-        return {"full": "리그 풀플레이", "highlight": "리그 하이라이트",
+        return {"full": "리그 풀플레이", "highlight": "리그 하이라이트", "tournament": "토너먼트 이벤트",
                 "rc_point": "랭챌 포갱", "rc_star": "랭챌 스갱"}.get(mode, mode)
 
     def change_mode(self):
         self.cfg["mode"] = self.mode_var.get()
         save_config(self.cfg)
         self.update_today_label()
-        where = ("랭킹챌린지 로비에서 [▶ 시작]을 누르세요" if self.cfg["mode"].startswith("rc_")
-                 else "리그 메인/플레이 방식 선택 화면이나 경기 중에 [▶ 시작]을 누르세요")
+        m = self.cfg["mode"]
+        where = ("랭킹챌린지 로비에서 [▶ 시작]을 누르세요" if m.startswith("rc_") else
+                 "토너먼트 메인(PLAY BALL 화면)에서 [▶ 시작]을 누르세요" if m == "tournament" else
+                 "리그 메인/플레이 방식 선택 화면이나 경기 중에 [▶ 시작]을 누르세요")
         self.log(f"선택: {self.mode_name()} ({where})")
 
     def change_week(self):
@@ -574,8 +585,9 @@ class App:
         self.cfg["mode"] = self.mode_var.get()
         save_config(self.cfg)
         rc = self.cfg["mode"].startswith("rc_")
-        self.games_label.set("끝낸 연속 경기" if rc else "완료한 경기")
-        self.sim_label.set("갱신 횟수" if rc else "시뮬레이션 전환")
+        tn = self.cfg["mode"] == "tournament"
+        self.games_label.set("끝낸 연속 경기" if rc else "끝낸 경기" if tn else "완료한 경기")
+        self.sim_label.set("갱신 횟수" if rc else "완료한 바퀴" if tn else "시뮬레이션 전환")
         self.log("시작: " + self.mode_name())
         self.bot = Bot(self.adb, self.vision, self.cfg,
                        on_log=lambda m: self.q.put(("log", m)),

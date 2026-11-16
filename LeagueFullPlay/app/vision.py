@@ -32,6 +32,7 @@ class Vision:
         self.check_box = meta.pop("_gauge_135_check_box")
         self.select_cards = meta.pop("_select_cards", {})
         self.rc = meta.pop("_rc", {})
+        self.tn = meta.pop("_tn", {})
         self.templates = {}
         for name, info in meta.items():
             img = imread_any(os.path.join(template_dir, name + ".png"))
@@ -166,6 +167,17 @@ class Vision:
             out.append(bright < th)
         return out
 
+    # ---------- 토너먼트 ----------
+    def tn_quick_selected(self, norm):
+        """플레이 방식 선택 화면에서 왼쪽 '빠른 진행' 카드에 하늘색 테두리가 있는지"""
+        r, g, b = self._rgb(norm, self.tn["quick_strip"])
+        return float(((b > 200) & (g > 180) & (r < 120)).mean()) > 0.25
+
+    def tn_is_final(self, norm):
+        """보상 화면 왼쪽 버튼 자리가 파란색 = 가운데 [확인] 하나뿐(결승 끝), 흰색 = [N강전 진행] 버튼"""
+        r, g, b = self._rgb(norm, self.tn["left_btn_box"])
+        return float(((b > 180) & (r < 80) & (b > g + 60)).mean()) > 0.3
+
     def analyze(self, norm):
         """화면에서 필요한 모든 정보를 한 번에 계산"""
         info = {}
@@ -174,6 +186,11 @@ class Vision:
             info[name] = (ok, score, pt)
         info["_yellow135"] = self.gauge_135_yellow(norm)
         info["_selected"] = self.selected_card(norm) if info.get("select_title", (False,))[0] else None
+        if self.tn:
+            info["_tn_quick"] = (self.tn_quick_selected(norm)
+                                 if info.get("select_title", (False,))[0] else None)
+            info["_tn_final"] = (self.tn_is_final(norm)
+                                 if info.get("tn_rewards", (False,))[0] else None)
         if self.rc:
             lobby = info.get("rc_lobby", (False,))[0]
             info["_rc_kind"] = self.rc_refresh_kind(norm) if lobby else None

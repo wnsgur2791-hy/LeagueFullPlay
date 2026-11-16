@@ -368,6 +368,104 @@ class RcBrain:
         return screen, taps, logs, None, stop
 
 
+class TnBrain:
+    """토너먼트 이벤트 매크로 (16강 → 8강 → 4강 → 결승이 한 바퀴)
+
+    메인 [PLAY BALL] → 플레이 방식 '빠른 진행' 확인 → [START] → (자동 진행)
+    → 경기 결과 [다음] → 보상 화면 왼쪽 [N강전 진행] (결승 뒤에는 가운데 [확인])
+    → '토너먼트 우승!' 화면 탭 → [다음 화면으로] → 다시 메인
+    games_done = 끝낸 경기 수, sim_switches = 끝낸 바퀴 수. 최대 횟수는 바퀴 기준
+    """
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.games_done = 0
+        self.sim_switches = 0
+        self.last_action = {}
+        self.waiting_since = None
+        self.started_logged = False
+        self.lap_counted = False
+
+    _ready = Brain._ready
+
+    def _p(self, name):
+        return tuple(TN_POINTS[name])
+
+    def step(self, info, now):
+        cfg = self.cfg
+        taps, logs = [], []
+        stop = None
+        cd = cfg["action_cooldown_sec"]
+        if not self.started_logged:
+            self.started_logged = True
+            logs.append("토너먼트 매크로 시작 (빠른 진행으로 16강 → 결승 반복)")
+
+        def has(name):
+            return info.get(name, (False,))[0]
+
+        known = True
+        if has("select_title"):
+            screen = "플레이 방식 선택"
+            if not info.get("_tn_quick"):
+                if self._ready("tn_card", now, cd):
+                    taps.append(self._p("quick_card"))
+                    logs.append("빠른 진행 선택")
+            elif self._ready("tn_start", now, 4.0):
+                taps.append(self._p("start"))
+                logs.append("START (빠른 진행)")
+        elif has("tn_rewards"):
+            screen = "보상 화면"
+            if info.get("_tn_final"):
+                if self._ready("tn_final", now, 3.0):
+                    taps.append(self._p("final_ok"))
+                    if not self.lap_counted:
+                        self.lap_counted = True
+                        self.sim_switches += 1
+                        logs.append(f"결승 끝 → 확인 ({self.sim_switches}바퀴 완료)")
+            elif self._ready("tn_next", now, 3.0):
+                taps.append(self._p("next_round"))
+                logs.append("다음 라운드 진행")
+        elif has("result_title"):
+            screen = "경기 결과"
+            if self._ready("tn_result", now, 3.0):
+                taps.append(self._p("result_next"))
+                if self._ready("tn_count_game", now, 15.0):
+                    self.games_done += 1
+                    logs.append(f"경기 끝 ({self.games_done}경기째) → 다음")
+        elif has("tn_win"):
+            screen = "토너먼트 우승"
+            if self._ready("tn_win", now, 3.0):
+                taps.append(self._p("win_tap"))
+                logs.append("토너먼트 우승! → 화면 터치")
+        elif has("tn_done"):
+            screen = "토너먼트 완료"
+            if self._ready("tn_done", now, 3.0):
+                taps.append(self._p("done"))
+                logs.append("다음 화면으로")
+        elif has("tn_playball"):
+            screen = "토너먼트 메인"
+            limit = int(cfg.get("max_games", 0) or 0)
+            if limit and self.sim_switches >= limit:
+                stop = f"설정한 {limit}바퀴를 모두 진행했어요."
+            elif self._ready("tn_play", now, 4.0):
+                taps.append(self._p("playball"))
+                self.lap_counted = False          # 새 바퀴 시작
+                logs.append("PLAY BALL")
+        else:
+            known = False
+            screen = "진행 중(기다림)"
+        if known:
+            self.waiting_since = None
+        else:
+            # 빠른 진행 중이거나 로딩: 기다림. 너무 오래 그대로면 멈춤 (볼 부족 같은 새 창일 수 있음)
+            if self.waiting_since is None:
+                self.waiting_since = now
+            elif now - self.waiting_since > cfg.get("tn_wait_timeout_sec", 300):
+                stop = "5분 동안 아는 화면이 나오지 않아 멈췄어요. (볼 부족·새 팝업일 수 있어요)"
+        return screen, [t for t in taps if t], logs, None, stop
+
+
+TN_POINTS = {}
 RC_POINTS = {}
 WEEK = ["월", "화", "수", "목", "금", "토", "일"]
 
@@ -386,6 +484,10 @@ def rc_kind_for(cfg, day):
 def make_brain(cfg, vision=None):
     if vision is not None and vision.rc:
         RC_POINTS.update(vision.rc.get("points", {}))
+    if vision is not None and vision.tn:
+        TN_POINTS.update(vision.tn.get("points", {}))
+    if cfg.get("mode") == "tournament":
+        return TnBrain(cfg)
     if str(cfg.get("mode", "")).startswith("rc_"):
         return RcBrain(cfg)
     return Brain(cfg)

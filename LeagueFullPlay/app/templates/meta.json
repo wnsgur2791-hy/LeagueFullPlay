@@ -461,5 +461,93 @@
    }
   ],
   "playball_bright": 0.55
+ },
+ "tn_playball": {
+  "box": [
+   309,
+   1228,
+   459,
+   1271
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "tn_rewards": {
+  "box": [
+   279,
+   701,
+   489,
+   746
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "tn_win": {
+  "box": [
+   254,
+   386,
+   514,
+   441
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "tn_done": {
+  "box": [
+   319,
+   1146,
+   449,
+   1178
+  ],
+  "margin": 40,
+  "threshold": 0.75
+ },
+ "_tn": {
+  "points": {
+   "playball": [
+    384,
+    1248
+   ],
+   "quick_card": [
+    160,
+    586
+   ],
+   "start": [
+    384,
+    1142
+   ],
+   "next_round": [
+    247,
+    1272
+   ],
+   "final_ok": [
+    384,
+    1272
+   ],
+   "win_tap": [
+    384,
+    683
+   ],
+   "done": [
+    384,
+    1162
+   ],
+   "result_next": [
+    568,
+    1273
+   ]
+  },
+  "quick_strip": [
+   55,
+   366,
+   265,
+   378
+  ],
+  "left_btn_box": [
+   140,
+   1245,
+   360,
+   1300
+  ]
  }
 }
