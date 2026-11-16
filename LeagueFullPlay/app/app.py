@@ -25,6 +25,33 @@ from vision import Vision  # noqa: E402
 
 DEFAULT_CONFIG = os.path.join(APP_DIR, "config_default.json")
 
+TN_WARNING = ("최고 난이도 토너먼트에서, 패배가 없다는 가정으로 동작해요.\n"
+              "경기에서 지면 진행 화면이 달라져서 매크로가 멈추거나 엉뚱한 곳을 누를 수 있어요.")
+
+
+def add_tooltip(widget, text):
+    """마우스를 올리면 작은 설명창을 띄움"""
+    tip = {"w": None}
+
+    def show(_e):
+        if tip["w"]:
+            return
+        w = tk.Toplevel(widget)
+        w.wm_overrideredirect(True)
+        w.wm_geometry(f"+{widget.winfo_rootx() + 20}+{widget.winfo_rooty() + 20}")
+        tk.Label(w, text=text, justify="left", bg="#fff8dc", relief="solid", borderwidth=1,
+                 padx=6, pady=4).pack()
+        tip["w"] = w
+
+    def hide(_e):
+        if tip["w"]:
+            tip["w"].destroy()
+            tip["w"] = None
+
+    widget.bind("<Enter>", show)
+    widget.bind("<Leave>", hide)
+
+
 # 고급 설정에 보여줄 이름 (화면 흐름 순서)
 TEMPLATE_NAMES = {
     "main_title": "리그 메인 (NEXT MATCH)",
@@ -150,6 +177,10 @@ class App:
         ttk.Label(r2b, text="이벤트", width=10).pack(side="left")
         ttk.Radiobutton(r2b, text="토너먼트 (빠른 진행으로 16강~결승 반복)", value="tournament",
                         variable=self.mode_var, command=self.change_mode).pack(side="left", padx=6)
+        warn = tk.Label(r2b, text=" ! ", fg="white", bg="#e08a00", font=("", 9, "bold"), cursor="hand2")
+        warn.pack(side="left")
+        add_tooltip(warn, TN_WARNING)
+        warn.bind("<Button-1>", lambda e: messagebox.showwarning("토너먼트 매크로 주의", TN_WARNING))
         r3 = ttk.Frame(modef)
         r3.pack(fill="x", padx=6, pady=(2, 6))
         ttk.Label(r3, text="요일별 갱신", width=10).pack(side="left")
